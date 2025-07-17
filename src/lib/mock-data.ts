@@ -39,6 +39,7 @@ export interface DocumentStatus {
 export interface VerificationCentre {
     name: string;
     state: string;
+    address: string;
     email: string;
     type: string;
 }
@@ -64,7 +65,7 @@ export interface Report {
 
 const applications: Application[] = [
     { id: 'APP-001', providerId: 'P12345', name: 'Dr. John Smith', status: 'Completed', progress: 100, assignee: 'Alice Johnson', source: 'Manual Entry', market: 'National', specialty: 'Cardiology', address: '123 Health St, Suite 100, Medville, CA, 90210', npi: '1234567890' },
-    { id: 'APP-002', providerId: 'P54321', name: 'Dr. Emily White', status: 'Pending Review', progress: 75, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'California', specialty: 'Dermatology', address: '456 Skin Ave, Suite 200, Beverly Hills, CA, 90210', npi: '0987654321' },
+    { id: 'APP-002', providerId: 'P54321', name: 'Dr. Emily White', status: 'In-Progress', progress: 75, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'California', specialty: 'Dermatology', address: '456 Skin Ave, Suite 200, Beverly Hills, CA, 90210', npi: '0987654321' },
     { id: 'APP-003', providerId: 'P67890', name: 'Dr. Michael Brown', status: 'In-Progress', progress: 50, assignee: 'Charlie Davis', source: 'Email Parsing', market: 'New York', specialty: 'Neurology', address: '789 Brain Blvd, Thinktown, NY, 10001', npi: '1122334455' },
     { id: 'APP-004', providerId: 'P11223', name: 'Dr. Sarah Miller', status: 'Closed', progress: 100, assignee: 'Alice Johnson', source: 'Availity API', market: 'Texas', specialty: 'Pediatrics', address: '101 Child Way, Kidston, TX, 75001', npi: '6677889900' },
     { id: 'APP-005', providerId: 'P44556', name: 'Dr. David Wilson', status: 'Needs Further Review', progress: 90, assignee: 'Unassigned', source: 'Manual Entry', market: 'Florida', specialty: 'Orthopedics', address: '202 Bone Ln, Jointsville, FL, 33101', npi: '1231231234' },
@@ -106,17 +107,20 @@ const documentsStatus: Record<string, DocumentStatus[]> = {
 
 const verificationCentres = {
   "Medical License": [
-    { name: "CA Medical Board", state: "CA", email: "verify@mbc.ca.gov", type: "State Board" },
-    { name: "NY State Education Dept", state: "NY", email: "opverify@nysed.gov", type: "State Dept" },
+    { name: "CA Medical Board", state: "CA", address: "2005 Evergreen St, Sacramento, CA 95815", email: "verify@mbc.ca.gov", type: "State Board" },
+    { name: "NY State Education Dept", state: "NY", address: "89 Washington Ave, Albany, NY 12234", email: "opverify@nysed.gov", type: "State Dept" },
   ],
   "Driving License": [
-    { name: "California DMV", state: "CA", email: "records@dmv.ca.gov", type: "DMV" },
-    { name: "New York DMV", state: "NY", email: "verify@dmv.ny.gov", type: "DMV" },
+    { name: "California DMV", state: "CA", address: "2415 1st Ave, Sacramento, CA 95818", email: "records@dmv.ca.gov", type: "DMV" },
+    { name: "New York DMV", state: "NY", address: "6 Empire State Plaza, Albany, NY 12228", email: "verify@dmv.ny.gov", type: "DMV" },
   ],
   "DEA Certificate": [
-    { name: "Drug Enforcement Administration", state: "Federal", email: "verification@dea.gov", type: "Federal Agency" },
+    { name: "Drug Enforcement Administration", state: "Federal", address: "8701 Morrissette Dr, Springfield, VA 22152", email: "verification@dea.gov", type: "Federal Agency" },
   ],
 };
+
+const allVerificationCentresList: VerificationCentre[] = Object.values(verificationCentres).flat();
+
 
 const providersByOrg: Record<string, string[]> = {
   "CA Medical Board": ["Dr. John Smith", "Dr. Emily White"],
@@ -169,6 +173,9 @@ const api = {
     },
     getVerificationCentres: (): Record<string, VerificationCentre[]> => {
         return verificationCentres;
+    },
+    getVerificationCentreByName: (name: string): VerificationCentre | undefined => {
+        return allVerificationCentresList.find(c => c.name === name);
     },
     getProvidersByOrg: (): Record<string, string[]> => {
         return providersByOrg;
