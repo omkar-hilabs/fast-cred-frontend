@@ -1,0 +1,90 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { kpiData, summaryTiles } from '@/lib/data';
+import { KpiCard } from '@/components/kpi-card';
+import { StatusDonutChart } from '@/components/charts/status-donut-chart';
+import { TimeToCredentialBarChart } from '@/components/charts/time-to-credential-bar-chart';
+import { Button } from '@/components/ui/button';
+
+export default function ExecutiveSummary() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <h1 className="text-2xl font-bold tracking-tight font-headline">Executive Summary</h1>
+        <div className="flex items-center gap-2 mt-4 md:mt-0">
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Market" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Markets</SelectItem>
+              <SelectItem value="ca">California</SelectItem>
+              <SelectItem value="ny">New York</SelectItem>
+              <SelectItem value="tx">Texas</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Application Source" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sources</SelectItem>
+              <SelectItem value="manual">Manual Entry</SelectItem>
+              <SelectItem value="caqh">CAQH</SelectItem>
+              <SelectItem value="email">Email Parsing</SelectItem>
+              <SelectItem value="api">Availity API</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Specialty" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Specialties</SelectItem>
+              <SelectItem value="cardiology">Cardiology</SelectItem>
+              <SelectItem value="dermatology">Dermatology</SelectItem>
+              <SelectItem value="neurology">Neurology</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button>Apply</Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        {Object.entries(kpiData).map(([key, data]) => (
+          <KpiCard
+            key={key}
+            title={data.label}
+            value={data.value}
+            change={data.change}
+            description="vs. last month"
+          />
+        ))}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="lg:col-span-4">
+          <TimeToCredentialBarChart />
+        </div>
+        <div className="lg:col-span-3">
+            <StatusDonutChart />
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {summaryTiles.map((tile) => (
+          <Card key={tile.title}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{tile.title}</CardTitle>
+              <tile.icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{tile.value}</div>
+              <p className="text-xs text-muted-foreground">items require your attention</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
