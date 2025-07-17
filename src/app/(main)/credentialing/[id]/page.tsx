@@ -1,18 +1,17 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, Clock, AlertTriangle, Mail, Send, FileCheck2, FileClock, FileX2, Upload, Search, Database, Check } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle, FileCheck2, FileClock, FileX2, Upload, Search, Database, Check } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import mockApi, { type DocumentStatus, type Application, type VerificationCentre } from '@/lib/mock-data';
+import mockApi, { type DocumentStatus, type VerificationCentre } from '@/lib/mock-data';
 
 const getDocumentIcon = (status: DocumentStatus['status']) => {
     switch (status) {
@@ -39,10 +38,30 @@ const getStatusDetails = (status: DocumentStatus['status']) => {
 };
 
 export default function CredentialingWorkflowPage({ params }: { params: { id: string } }) {
-  const [documents] = useState<DocumentStatus[]>(mockApi.getDocumentsStatus(params.id));
-  const [selectedDocument, setSelectedDocument] = useState<DocumentStatus>(documents[0]);
-  const verificationCentre: VerificationCentre | undefined = mockApi.getVerificationCentreByName("CA Medical Board");
+  const [documents, setDocuments] = useState<DocumentStatus[]>([]);
+  const [selectedDocument, setSelectedDocument] = useState<DocumentStatus | null>(null);
+  const [verificationCentre, setVerificationCentre] = useState<VerificationCentre | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    if(params.id) {
+        const docData = mockApi.getDocumentsStatus(params.id);
+        const vcData = mockApi.getVerificationCentreByName("CA Medical Board");
+        setDocuments(docData);
+        if(docData.length > 0) {
+            setSelectedDocument(docData[0]);
+        }
+        if(vcData){
+            setVerificationCentre(vcData);
+        }
+        setLoading(false);
+    }
+  }, [params.id]);
+
+
+  if (loading || !selectedDocument) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6">
