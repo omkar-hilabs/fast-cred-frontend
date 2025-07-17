@@ -10,14 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { donutChartData } from '@/lib/mock-data';
 
-const chartdata = [
-  { name: 'Approved', value: 890 },
-  { name: 'Rejected', value: 110 },
-  { name: 'Pending Review', value: 250 },
-  { name: 'In-Progress', value: 95 },
-];
-const colors = ["emerald", "rose", "amber", "sky"];
+const colors = ["hsl(var(--chart-2))", "hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+
+const valueFormatter = (number: number) =>
+  `${new Intl.NumberFormat('us').format(number).toString()}`;
 
 export function StatusDonutChart() {
   return (
@@ -30,13 +28,14 @@ export function StatusDonutChart() {
       </CardHeader>
       <CardContent className="flex-1 pb-0">
           <DonutChart
-            data={chartdata}
+            data={donutChartData}
             category="value"
             index="name"
+            valueFormatter={valueFormatter}
             colors={colors}
             className="w-full h-48"
           />
-          <Legend categories={['Approved', 'Rejected', 'Pending Review', 'In-Progress']} colors={colors} className="mt-4 flex-wrap" />
+          <Legend categories={donutChartData.map(d => d.name)} colors={colors} className="mt-4 flex-wrap" />
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">

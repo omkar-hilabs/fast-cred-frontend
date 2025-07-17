@@ -1,4 +1,5 @@
 
+
 // This file contains mock data for the application.
 // In a real application, this data would be fetched from a database.
 
@@ -71,6 +72,8 @@ const applications: Application[] = [
     { id: 'APP-004', providerId: 'P11223', name: 'Dr. Sarah Miller', status: 'Closed', progress: 100, assignee: 'Alice Johnson', source: 'Availity API', market: 'Texas', specialty: 'Pediatrics', address: '101 Child Way, Kidston, TX, 75001', npi: '6677889900' },
     { id: 'APP-005', providerId: 'P44556', name: 'Dr. David Wilson', status: 'Needs Further Review', progress: 90, assignee: 'Unassigned', source: 'Manual Entry', market: 'Florida', specialty: 'Orthopedics', address: '202 Bone Ln, Jointsville, FL, 33101', npi: '1231231234' },
     { id: 'APP-006', providerId: 'P77889', name: 'Dr. Jessica Garcia', status: 'Completed', progress: 100, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'National', specialty: 'Oncology', address: '303 Hope Dr, Cure City, WA, 98101', npi: '4564564567' },
+    { id: 'APP-007', providerId: 'P99999', name: 'Dr. Robert King', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'California', specialty: 'Cardiology', address: '1 Heart Way, Loveland, CA, 90210', npi: '9998887776' },
+    { id: 'APP-008', providerId: 'P88888', name: 'Dr. Linda Martinez', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'New York', specialty: 'Neurology', address: '2 Nerve St, Big Apple, NY, 10001', npi: '8887776665' },
 ];
 
 const aiIssues: Record<string, AiIssue[]> = {
@@ -110,6 +113,20 @@ const verificationCentres = {
   "Medical License": [
     { name: "CA Medical Board", state: "CA", address: "2005 Evergreen St, Sacramento, CA 95815", email: "verify@mbc.ca.gov", type: "State Board" },
     { name: "NY State Education Dept", state: "NY", address: "89 Washington Ave, Albany, NY 12234", email: "opverify@nysed.gov", type: "State Dept" },
+    { name: "TX Medical Board", state: "TX", address: "1801 Congress Ave, Austin, TX 78701", email: "verifications@tmb.state.tx.us", type: "State Board" },
+  ],
+  "Medical Degree": [
+      { name: "ECFMG (International)", state: "PA", address: "3624 Market St, Philadelphia, PA 19104", email: "verify@ecfmg.org", type: "Non-profit" },
+      { name: "FCVS (FSMB)", state: "TX", address: "400 Fuller Wiser Rd, Euless, TX 76039", email: "fcvs@fsmb.org", type: "Non-profit" },
+  ],
+  "NPI Record": [
+      { name: "NPPES (CMS)", state: "Federal", address: "7500 Security Blvd, Baltimore, MD 21244", email: "npi@cms.hhs.gov", type: "Federal Agency" },
+  ],
+  "Passport": [
+      { name: "National Passport Info Center", state: "Federal", address: "1111 19th St NW, Washington, DC 20036", email: "npic@state.gov", type: "Federal Agency" },
+  ],
+  "Malpractice History": [
+      { name: "National Practitioner Data Bank", state: "Federal", address: "P.O. Box 10828, Chantilly, VA 20153", email: "help@npdb.hrsa.gov", type: "Federal Agency" },
   ],
   "Driving License": [
     { name: "California DMV", state: "CA", address: "2415 1st Ave, Sacramento, CA 95818", email: "records@dmv.ca.gov", type: "DMV" },
@@ -124,10 +141,16 @@ const allVerificationCentresList: VerificationCentre[] = Object.values(verificat
 
 
 const providersByOrg: Record<string, string[]> = {
-  "CA Medical Board": ["Dr. John Smith", "Dr. Emily White"],
-  "NY State Education Dept": ["Dr. Michael Brown"],
-  "California DMV": ["Dr. Sarah Miller", "Dr. David Wilson"],
+  "CA Medical Board": ["Dr. John Smith", "Dr. Emily White", "Dr. Robert King"],
+  "NY State Education Dept": ["Dr. Michael Brown", "Dr. Linda Martinez"],
+  "TX Medical Board": ["Dr. Sarah Miller"],
+  "California DMV": ["Dr. David Wilson"],
   "Drug Enforcement Administration": ["Dr. Jessica Garcia"],
+  "ECFMG (International)": ["Dr. Emily White"],
+  "FCVS (FSMB)": ["Dr. John Smith", "Dr. Michael Brown"],
+  "NPPES (CMS)": ["Dr. Robert King", "Dr. Linda Martinez"],
+  "National Passport Info Center": ["Dr. Sarah Miller"],
+  "National Practitioner Data Bank": ["Dr. David Wilson", "Dr. Jessica Garcia"]
 };
 
 
@@ -156,6 +179,36 @@ const recentReports: Report[] = [
     { name: "Pending Applications - CA Market", date: "2023-12-28", type: "Excel" },
 ];
 
+export const kpiData = {
+  totalApplications: { value: '1,250', change: '+15.2%', label: 'Total Applications', trend: [{month: 'Jan', value: 100}, {month: 'Feb', value: 120}, {month: 'Mar', value: 150}, {month: 'Apr', value: 130}] },
+  completed: { value: '890', change: '+10.1%', label: 'Completed', trend: [{month: 'Jan', value: 70}, {month: 'Feb', value: 80}, {month: 'Mar', value: 90}, {month: 'Apr', value: 85}] },
+  inProgress: { value: '250', change: '+5.5%', label: 'In-Progress', trend: [{month: 'Jan', value: 20}, {month: 'Feb', value: 25}, {month: 'Mar', value: 30}, {month: 'Apr', value: 28}] },
+  notStarted: { value: '95', change: '-2.0%', label: 'Not Started', trend: [{month: 'Jan', value: 10}, {month: 'Feb', value: 12}, {month: 'Mar', value: 15}, {month: 'Apr', value: 13}] },
+  needsReview: { value: '15', change: '+25%', label: 'Needs Further Review', trend: [{month: 'Jan', value: 1}, {month: 'Feb', value: 2}, {month: 'Mar', value: 4}, {month: 'Apr', value: 3}] },
+};
+
+export const donutChartData = [
+  { name: 'Approved', value: 890 },
+  { name: 'Rejected', value: 110 },
+  { name: 'Pending Review', value: 250 },
+  { name: 'In-Progress', value: 95 },
+];
+
+export const barChartData = [
+    { month: 'Jan', avgTime: 20 },
+    { month: 'Feb', avgTime: 18 },
+    { month: 'Mar', avgTime: 19 },
+    { month: 'Apr', avgTime: 17 },
+    { month: 'May', avgTime: 15 },
+    { month: 'Jun', avgTime: 14 },
+];
+
+export const summaryTiles = [
+  { title: 'Providers Awaiting Action', value: '78', icon: Users, items: ['APP-005: Dr. David Wilson', 'APP-007: Dr. Robert King', 'APP-008: Dr. Linda Martinez', 'APP-010: Dr. Karen Hall', 'APP-012: Dr. James Lee'] },
+  { title: 'Payers Awaiting Action', value: '32', icon: HandPlatter, items: ['Aetna', 'Cigna', 'United Healthcare', 'Humana'] },
+  { title: 'Verification Centres Awaiting Action', value: '12', icon: Building, items: ['CA Medical Board', 'NY State Education Dept', 'TX Medical Board', 'ECFMG (International)', 'FCVS (FSMB)'] },
+  { title: 'Follow-up / Reminder Pending', value: '45', icon: Mail, items: ['Follow up with Dr. Michael Brown', 'Reminder to TX DMV', 'Follow up with Dr. Sarah Miller'] },
+];
 
 // Simulate API calls
 const api = {

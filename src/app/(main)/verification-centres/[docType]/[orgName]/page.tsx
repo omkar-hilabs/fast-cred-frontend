@@ -152,4 +152,3 @@ Credentialing Department`;
     </div>
   );
 }
-

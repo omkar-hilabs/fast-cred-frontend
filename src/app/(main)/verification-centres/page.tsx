@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { FileDown, Mail, ArrowRight, Building, BookUser } from "lucide-react"
+import { ArrowRight, BookUser } from "lucide-react"
 import mockApi, { type VerificationCentre } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function VerificationCentresPage() {
     const [verificationCentres, setVerificationCentres] = useState<Record<string, VerificationCentre[]>>({});
     const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
     const [providersByOrg, setProvidersByOrg] = useState<Record<string, string[]>>({});
+    const router = useRouter();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,6 +32,10 @@ export default function VerificationCentresPage() {
     const handleSelectDocType = (docType: string) => {
         setSelectedDocType(docType);
     };
+
+    const handleRowClick = (docType: string, orgName: string) => {
+        router.push(`/verification-centres/${encodeURIComponent(docType)}/${encodeURIComponent(orgName)}`);
+    }
 
     const docTypes = Object.keys(verificationCentres);
 
@@ -89,7 +95,7 @@ export default function VerificationCentresPage() {
                 </TableHeader>
                 <TableBody>
                   {verificationCentres[selectedDocType].map((org) => (
-                    <TableRow key={org.name}>
+                    <TableRow key={org.name} className="cursor-pointer" onClick={() => handleRowClick(selectedDocType, org.name)}>
                       <TableCell className="font-medium">{org.name}</TableCell>
                       <TableCell>{org.state}</TableCell>
                       <TableCell>{org.email}</TableCell>

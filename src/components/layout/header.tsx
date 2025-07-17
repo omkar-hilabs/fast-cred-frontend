@@ -4,9 +4,7 @@ import {
   Home,
   LineChart,
   Package,
-  Package2,
   PanelLeft,
-  Search,
   Users2,
   FileText,
   Mail
@@ -29,7 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -50,6 +47,9 @@ function getBreadcrumbs(pathname: string) {
         if (part.startsWith('APP-')) {
             label = `Review ${part}`;
         }
+        if (part === 'verification-centres') {
+          label = 'Verification Centres'
+        }
 
 
         if (isLast) {
@@ -60,7 +60,7 @@ function getBreadcrumbs(pathname: string) {
     });
 
     if (breadcrumbs.length <= 2) {
-      if(breadcrumbs.length == 2) {
+      if(breadcrumbs.length == 2 && breadcrumbs[1].href !== '/executive-summary') {
         return [breadcrumbs[1]];
       }
       return [];
@@ -137,24 +137,28 @@ export default function AppHeader() {
           </nav>
         </SheetContent>
       </Sheet>
-       <Breadcrumb className="hidden md:flex">
-        <BreadcrumbList>
-          {breadcrumbs.map((crumb, index) => (
-            <React.Fragment key={crumb.href}>
-              <BreadcrumbItem>
-                {crumb.isPage ? (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={crumb.href}>{crumb.label}</Link>
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
-            </React.Fragment>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
+      <div className="flex items-center gap-4">
+        {pathname === '/executive-summary' && <Logo />}
+        <Breadcrumb className="hidden md:flex">
+            <BreadcrumbList>
+            {breadcrumbs.map((crumb, index) => (
+                <React.Fragment key={crumb.href}>
+                <BreadcrumbItem>
+                    {crumb.isPage ? (
+                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                    ) : (
+                    <BreadcrumbLink asChild>
+                        <Link href={crumb.href}>{crumb.label}</Link>
+                    </BreadcrumbLink>
+                    )}
+                </BreadcrumbItem>
+                {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+                </React.Fragment>
+            ))}
+            </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
       <div className="relative ml-auto flex-1 md:grow-0">
         
       </div>

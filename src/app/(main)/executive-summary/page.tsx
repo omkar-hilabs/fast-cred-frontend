@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
-import { kpiData, summaryTiles } from '@/lib/data';
+import { kpiData, summaryTiles } from '@/lib/mock-data';
 import { KpiCard } from '@/components/kpi-card';
 import { StatusDonutChart } from '@/components/charts/status-donut-chart';
 import { TimeToCredentialBarChart } from '@/components/charts/time-to-credential-bar-chart';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { List, ListItem } from '@tremor/react';
 
 export default function ExecutiveSummary() {
@@ -100,7 +100,7 @@ export default function ExecutiveSummary() {
                 <p className="text-xs text-muted-foreground">items require your attention</p>
                 </CardContent>
                 <CardFooter>
-                    <Button variant="outline" size="sm" className="w-full" onClick={() => handleViewClick(tile.title, tile.items)}>View List</Button>
+                    <Button variant="outline" size="sm" className="w-full max-w-[120px]" onClick={() => handleViewClick(tile.title, tile.items)}>View List</Button>
                 </CardFooter>
             </Card>
             ))}
@@ -115,7 +115,7 @@ export default function ExecutiveSummary() {
                     List of items that require your immediate attention.
                 </DialogDescription>
             </DialogHeader>
-            <div className="mt-4">
+            <div className="mt-4 max-h-[300px] overflow-y-auto">
               <List>
                 {modalItems.map((item, index) => (
                   <ListItem key={index}>
@@ -124,6 +124,9 @@ export default function ExecutiveSummary() {
                 ))}
               </List>
             </div>
+            <DialogFooter>
+                <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Close</Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
 
