@@ -1,14 +1,14 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, Clock, AlertTriangle, FileCheck2, FileClock, FileX2, Upload, Search, Database, Check } from 'lucide-react';
+import { CheckCircle, Clock, AlertTriangle, FileCheck2, FileClock, FileX2, Upload, Search, Database, Check, ArrowLeft } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import mockApi, { type DocumentStatus, type VerificationCentre } from '@/lib/mock-data';
@@ -46,17 +46,20 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
   useEffect(() => {
     if(params.id) {
         const docData = mockApi.getDocumentsStatus(params.id);
-        const vcData = mockApi.getVerificationCentreByName("CA Medical Board");
         setDocuments(docData);
         if(docData.length > 0) {
             setSelectedDocument(docData[0]);
         }
-        if(vcData){
-            setVerificationCentre(vcData);
-        }
         setLoading(false);
     }
   }, [params.id]);
+
+  useEffect(() => {
+    if (selectedDocument) {
+        const vcData = mockApi.getVerificationCentreForDoc(selectedDocument.name);
+        setVerificationCentre(vcData || null);
+    }
+  }, [selectedDocument]);
 
 
   if (loading || !selectedDocument) {
@@ -65,7 +68,12 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
 
   return (
     <div className="space-y-6">
+      <div>
+        <Button asChild variant="ghost" className="mb-4 px-0">
+          <Link href="/credentialing"><ArrowLeft className="mr-2 h-4 w-4"/> Back to Credentialing</Link>
+        </Button>
         <h1 className="text-2xl font-bold tracking-tight font-headline">Credentialing Workflow for {params.id}</h1>
+      </div>
         
         <Card>
             <CardHeader>
@@ -107,52 +115,48 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {/* Column 1: Original Upload */}
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2">
+                    <div className="flex-1 space-y-2 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <div className="flex items-center gap-2 font-semibold text-lg">
                             <Upload className="h-5 w-5 text-primary" />
-                            <h4 className="font-semibold text-lg">Original Upload</h4>
+                            <h4>Original Upload</h4>
                         </div>
                         <Image src={`https://placehold.co/600x400.png`} alt={`${selectedDocument.name} Scan`} width={600} height={400} className="rounded-md border aspect-[3/2] object-cover" data-ai-hint="medical license document" />
                     </div>
 
-                    {/* Column 2: OCR/LLM Output */}
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2">
+                    <div className="flex-1 space-y-2 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <div className="flex items-center gap-2 font-semibold text-lg">
                             <Search className="h-5 w-5 text-primary" />
-                            <h4 className="font-semibold text-lg">OCR/LLM Output</h4>
+                            <h4>OCR/LLM Output</h4>
                         </div>
                         <div className="space-y-2 text-sm bg-muted p-3 rounded-md h-full">
-                            <p><strong>License Type:</strong> Physician <Badge variant="outline" className="ml-2">99%</Badge></p>
-                            <p><strong>License Number:</strong> 12345678 <Badge variant="outline" className="ml-2">98%</Badge></p>
-                            <p><strong>Issue Date:</strong> 2020-01-15 <Badge variant="outline" className="ml-2">95%</Badge></p>
-                            <p><strong>Expiry Date:</strong> 2025-01-14 <Badge variant="outline" className="ml-2">96%</Badge></p>
+                            <p><strong>License Type:</strong> {selectedDocument.ocrData?.type || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.type || 'N/A'}%</Badge></p>
+                            <p><strong>License Number:</strong> {selectedDocument.ocrData?.number || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.number || 'N/A'}%</Badge></p>
+                            <p><strong>Issue Date:</strong> {selectedDocument.ocrData?.issueDate || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.issueDate || 'N/A'}%</Badge></p>
+                            <p><strong>Expiry Date:</strong> {selectedDocument.ocrData?.expiryDate || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.expiryDate || 'N/A'}%</Badge></p>
                         </div>
                     </div>
 
-                    {/* Column 3: API Verification */}
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2">
+                    <div className="flex-1 space-y-2 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <div className="flex items-center gap-2 font-semibold text-lg">
                             <Database className="h-5 w-5 text-primary" />
-                            <h4 className="font-semibold text-lg">API Verification</h4>
+                            <h4>API Verification</h4>
                         </div>
                         <div className="space-y-2 text-sm bg-muted p-3 rounded-md h-full">
                             <div className="flex items-start gap-2 text-green-600">
-                                <CheckCircle className="h-5 w-5 mt-0.5" />
-                                <span>Verified with State Medical Board API</span>
+                                <CheckCircle className="h-5 w-5 mt-0.5 shrink-0" />
+                                <span>Verified with {verificationCentre?.type || 'State Board'} API</span>
                             </div>
                              <div className="flex items-start gap-2 text-muted-foreground">
-                                <Clock className="h-5 w-5 mt-0.5" />
+                                <Clock className="h-5 w-5 mt-0.5 shrink-0" />
                                 <span>NPDB Check Pending</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Column 4: Primary Source */}
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2">
+                    <div className="flex-1 space-y-2 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <div className="flex items-center gap-2 font-semibold text-lg">
                             <Check className="h-5 w-5 text-primary" />
-                            <h4 className="font-semibold text-lg">Primary Source</h4>
+                            <h4>Primary Source</h4>
                         </div>
                         {verificationCentre ? (
                             <div className="space-y-2 text-sm bg-muted p-3 rounded-md h-full">
@@ -166,7 +170,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-sm bg-muted p-3 rounded-md h-full">
+                            <div className="text-sm bg-muted p-3 rounded-md h-full flex items-center justify-center">
                                 <p>No verification center contact information available for this document type.</p>
                             </div>
                         )}

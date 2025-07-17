@@ -1,7 +1,3 @@
-
-
-// This file contains mock data for the application.
-// In a real application, this data would be fetched from a database.
 import { Users, HandPlatter, Building, Mail } from 'lucide-react';
 
 export interface Application {
@@ -37,6 +33,18 @@ export interface DocumentStatus {
     name: string;
     status: 'Verified' | 'Pending' | 'Flagged';
     progress: number;
+    ocrData?: {
+        type: string;
+        number: string;
+        issueDate: string;
+        expiryDate: string;
+        confidence: {
+            type: number;
+            number: number;
+            issueDate: number;
+            expiryDate: number;
+        }
+    }
 }
 
 export interface VerificationCentre {
@@ -106,10 +114,43 @@ const timelines: Record<string, TimelineEvent[]> = {
 
 const documentsStatus: Record<string, DocumentStatus[]> = {
     'default': [
-        { name: "Medical License", status: "Verified", progress: 100 },
-        { name: "Degree Certificate", status: "Pending", progress: 50 },
+        { 
+            name: "Medical License", 
+            status: "Verified", 
+            progress: 100, 
+            ocrData: {
+                type: "Physician",
+                number: "12345678",
+                issueDate: "2020-01-15",
+                expiryDate: "2025-01-14",
+                confidence: { type: 99, number: 98, issueDate: 95, expiryDate: 96 }
+            }
+        },
+        { 
+            name: "Degree Certificate", 
+            status: "Pending", 
+            progress: 50,
+            ocrData: {
+                type: "MD",
+                number: "N/A",
+                issueDate: "2010-05-20",
+                expiryDate: "N/A",
+                confidence: { type: 92, number: 0, issueDate: 88, expiryDate: 0 }
+            }
+        },
         { name: "CV/Resume", status: "Pending", progress: 25 },
-        { name: "Driving License", status: "Flagged", progress: 75 },
+        { 
+            name: "Driving License", 
+            status: "Flagged", 
+            progress: 75,
+            ocrData: {
+                type: "Class C",
+                number: "D9876543",
+                issueDate: "2021-08-10",
+                expiryDate: "2029-08-10",
+                confidence: { type: 85, number: 70, issueDate: 91, expiryDate: 90 }
+            }
+        },
         { name: "Passport", status: "Verified", progress: 100 },
     ]
 };
@@ -120,9 +161,10 @@ const verificationCentres = {
     { name: "NY State Education Dept", state: "NY", address: "89 Washington Ave, Albany, NY 12234", email: "opverify@nysed.gov", type: "State Dept" },
     { name: "TX Medical Board", state: "TX", address: "1801 Congress Ave, Austin, TX 78701", email: "verifications@tmb.state.tx.us", type: "State Board" },
   ],
-  "Medical Degree": [
+  "Degree Certificate": [
       { name: "ECFMG (International)", state: "PA", address: "3624 Market St, Philadelphia, PA 19104", email: "verify@ecfmg.org", type: "Non-profit" },
       { name: "FCVS (FSMB)", state: "TX", address: "400 Fuller Wiser Rd, Euless, TX 76039", email: "fcvs@fsmb.org", type: "Non-profit" },
+      { name: "Stanford University Registrar", state: "CA", address: "459 Lagunita Drive, Stanford, CA 94305", email: "registrar@stanford.edu", type: "University" },
   ],
   "NPI Record": [
       { name: "NPPES (CMS)", state: "Federal", address: "7500 Security Blvd, Baltimore, MD 21244", email: "npi@cms.hhs.gov", type: "Federal Agency" },
@@ -140,6 +182,9 @@ const verificationCentres = {
   "DEA Certificate": [
     { name: "Drug Enforcement Administration", state: "Federal", address: "8701 Morrissette Dr, Springfield, VA 22152", email: "verification@dea.gov", type: "Federal Agency" },
   ],
+  "CV/Resume": [
+    { name: "General Hospital HR", state: "CA", address: "123 Health St, Medville, CA 90210", email: "hr@generalhospital.com", type: "Employer" },
+  ]
 };
 
 const allVerificationCentresList: VerificationCentre[] = Object.values(verificationCentres).flat();
@@ -185,35 +230,11 @@ const recentReports: Report[] = [
     { name: "Pending Applications - CA Market", date: "2023-12-28", type: "Excel" },
 ];
 
-export const kpiData = {
-  totalApplications: { value: '1,250', change: '+15.2%', label: 'Total Applications', trend: [{month: 'Jan', value: 100}, {month: 'Feb', value: 120}, {month: 'Mar', value: 150}, {month: 'Apr', value: 130}] },
-  completed: { value: '890', change: '+10.1%', label: 'Completed', trend: [{month: 'Jan', value: 70}, {month: 'Feb', value: 80}, {month: 'Mar', value: 90}, {month: 'Apr', value: 85}] },
-  inProgress: { value: '250', change: '+5.5%', label: 'In-Progress', trend: [{month: 'Jan', value: 20}, {month: 'Feb', value: 25}, {month: 'Mar', value: 30}, {month: 'Apr', value: 28}] },
-  notStarted: { value: '95', change: '-2.0%', label: 'Not Started', trend: [{month: 'Jan', value: 10}, {month: 'Feb', value: 12}, {month: 'Mar', value: 15}, {month: 'Apr', value: 13}] },
-  needsReview: { value: '15', change: '+25%', label: 'Needs Further Review', trend: [{month: 'Jan', value: 1}, {month: 'Feb', value: 2}, {month: 'Mar', value: 4}, {month: 'Apr', value: 3}] },
-};
-
-export const donutChartData = [
-  { name: 'Approved', value: 890 },
-  { name: 'Rejected', value: 110 },
-  { name: 'Pending Review', value: 250 },
-  { name: 'In-Progress', value: 95 },
-];
-
-export const barChartData = [
-    { month: 'Jan', avgTime: 20 },
-    { month: 'Feb', avgTime: 18 },
-    { month: 'Mar', avgTime: 19 },
-    { month: 'Apr', avgTime: 17 },
-    { month: 'May', avgTime: 15 },
-    { month: 'Jun', avgTime: 14 },
-];
-
 export const summaryTiles = [
-  { title: 'Providers Awaiting Action', value: '78', icon: Users, items: applications.filter(a => a.status === 'Needs Further Review' || a.status === 'Pending Review').map(a => ({ id: a.id, name: a.name, status: a.status, market: a.market })) },
-  { title: 'Payers Awaiting Action', value: '32', icon: HandPlatter, items: [] },
-  { title: 'Verification Centres Awaiting Action', value: '12', icon: Building, items: [] },
-  { title: 'Follow-up / Reminder Pending', value: '45', icon: Mail, items: [] },
+  { title: 'Providers Awaiting Action', value: '5', icon: Users, items: applications.filter(a => a.status === 'Needs Further Review' || a.status === 'Pending Review').slice(0, 5).map(a => ({ id: a.id, name: a.name, status: a.status, market: a.market })) },
+  { title: 'Payers Awaiting Action', value: '4', icon: HandPlatter, items: [] },
+  { title: 'Verification Centres Awaiting Action', value: '5', icon: Building, items: [] },
+  { title: 'Follow-up / Reminder Pending', value: '3', icon: Mail, items: [] },
 ];
 
 // Simulate API calls
@@ -238,6 +259,10 @@ const api = {
     },
     getVerificationCentreByName: (name: string): VerificationCentre | undefined => {
         return allVerificationCentresList.find(c => c.name === name);
+    },
+    getVerificationCentreForDoc: (docName: string): VerificationCentre | undefined => {
+        const centers = (verificationCentres as any)[docName];
+        return centers ? centers[0] : undefined;
     },
     getProvidersByOrg: (): Record<string, string[]> => {
         return providersByOrg;
