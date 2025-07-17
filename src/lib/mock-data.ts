@@ -20,12 +20,14 @@ export interface AiIssue {
     issue: string;
     confidence: number;
     value: string;
+    reasoning: string;
 }
 
 export interface TimelineEvent {
     by: string;
     comment: string;
     time: string;
+    type: 'SYSTEM' | 'USER' | 'AI' | 'COMMENT';
 }
 
 export interface DocumentStatus {
@@ -53,7 +55,7 @@ export interface Email {
 
 
 export interface Report {
-    name: string;
+    name:string;
     date: string;
     type: 'PDF' | 'Excel';
 }
@@ -68,18 +70,28 @@ const applications: Application[] = [
     { id: 'APP-006', providerId: 'P77889', name: 'Dr. Jessica Garcia', status: 'Completed', progress: 100, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'National', specialty: 'Oncology', address: '303 Hope Dr, Cure City, WA, 98101', npi: '4564564567' },
 ];
 
-const aiIssues: AiIssue[] = [
-  { field: 'Address', issue: 'ZIP code mismatch with state.', confidence: 0.95, value: '90210' },
-  { field: 'NPI', issue: 'NPI number not found in national registry.', confidence: 0.82, value: '0987654321' },
-  { field: 'CV/Resume', issue: 'Gap in employment history (3 months).', confidence: 0.65, value: 'Missing: Jan 2020 - Mar 2020' },
-];
+const aiIssues: Record<string, AiIssue[]> = {
+    'APP-002': [
+      { field: 'Address', issue: 'ZIP code mismatch with state.', confidence: 0.95, value: '90210', reasoning: 'The ZIP code 90210 belongs to California, which matches the provided state. However, cross-referencing with USPS database suggests a potential discrepancy in the street address format.' },
+      { field: 'NPI', issue: 'NPI number not found in national registry.', confidence: 0.82, value: '0987654321', reasoning: 'The NPI provided did not return a valid result from the NPPES NPI Registry. This could be a typo or an inactive NPI.' },
+      { field: 'CV/Resume', issue: 'Gap in employment history (3 months).', confidence: 0.65, value: 'Missing: Jan 2020 - Mar 2020', reasoning: 'A 3-month gap was detected between two listed employment periods. This may require clarification from the provider.' },
+    ],
+    'default': [
+        { field: 'Address', issue: 'ZIP code mismatch with state.', confidence: 0.95, value: '90210', reasoning: 'The ZIP code 90210 belongs to California, which matches the provided state. However, cross-referencing with USPS database suggests a potential discrepancy in the street address format.' },
+    ]
+};
 
-const timeline: TimelineEvent[] = [
-    { by: 'System', comment: 'Application received via CAQH.', time: '2 days ago' },
-    { by: 'Alice J.', comment: 'Initial review started.', time: '1 day ago' },
-    { by: 'AI Assistant', comment: '3 potential issues detected.', time: '1 day ago' },
-    { by: 'Bob W.', comment: 'Assigned to self for verification.', time: '4 hours ago' },
-];
+const timelines: Record<string, TimelineEvent[]> = {
+    'APP-002': [
+        { by: 'System', comment: 'Application received via CAQH.', time: '2 days ago', type: 'SYSTEM' },
+        { by: 'Alice J.', comment: 'Initial review started.', time: '1 day ago', type: 'USER' },
+        { by: 'AI Assistant', comment: '3 potential issues detected.', time: '1 day ago', type: 'AI' },
+        { by: 'Bob W.', comment: 'Assigned to self for verification.', time: '4 hours ago', type: 'USER' },
+    ],
+    'default': [
+        { by: 'System', comment: 'Application received.', time: '3 days ago', type: 'SYSTEM' },
+    ]
+};
 
 const documentsStatus: DocumentStatus[] = [
     { name: "Medical License", status: "Verified" },
@@ -147,11 +159,11 @@ const api = {
     },
     getAiIssues: async (appId: string): Promise<AiIssue[]> => {
         await new Promise(resolve => setTimeout(resolve, 200));
-        return aiIssues;
+        return aiIssues[appId] || aiIssues['default'];
     },
     getTimeline: async (appId: string): Promise<TimelineEvent[]> => {
          await new Promise(resolve => setTimeout(resolve, 200));
-        return timeline;
+        return timelines[appId] || timelines['default'];
     },
     getDocumentsStatus: async (appId: string): Promise<DocumentStatus[]> => {
         await new Promise(resolve => setTimeout(resolve, 200));
@@ -171,7 +183,19 @@ const api = {
     },
     getEmailById: async (id: number): Promise<Email | undefined> => {
         await new Promise(resolve => setTimeout(resolve, 200));
-        return selectedEmail; // returning the same selected for simplicity
+        // a little more dynamic to show different selected emails
+        const email = emails.find(e => e.id === id);
+        if (email) {
+            return {
+                ...selectedEmail,
+                id: email.id,
+                from: email.from,
+                subject: email.subject,
+                date: email.date,
+                unread: email.unread
+            };
+        }
+        return selectedEmail; 
     },
     getRecentReports: async (): Promise<Report[]> => {
         await new Promise(resolve => setTimeout(resolve, 200));

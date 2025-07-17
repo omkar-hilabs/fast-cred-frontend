@@ -1,37 +1,39 @@
-import { FileText, Mail, Phone, Calendar, Clock, BarChart2, PieChart, Users, FileWarning, FolderClock } from 'lucide-react';
+import { FileText, Mail, Phone, Calendar, Clock, BarChart2, PieChart, Users, FileWarning, FolderClock, HandPlatter, Building } from 'lucide-react';
 
 export const kpiData = {
-  totalApplications: { value: '1,250', change: '+15.2%', label: 'Total Applications' },
-  completed: { value: '890', change: '+10.1%', label: 'Completed' },
-  inProgress: { value: '250', change: '+5.5%', label: 'In-Progress' },
-  notStarted: { value: '95', change: '-2.0%', label: 'Not Started' },
-  needsReview: { value: '15', change: '+25%', label: 'Needs Further Review' },
+  totalApplications: { value: '1,250', change: '+15.2%', label: 'Total Applications', trend: [{month: 'Jan', value: 100}, {month: 'Feb', value: 120}, {month: 'Mar', value: 150}, {month: 'Apr', value: 130}] },
+  completed: { value: '890', change: '+10.1%', label: 'Completed', trend: [{month: 'Jan', value: 70}, {month: 'Feb', value: 80}, {month: 'Mar', value: 90}, {month: 'Apr', value: 85}] },
+  inProgress: { value: '250', change: '+5.5%', label: 'In-Progress', trend: [{month: 'Jan', value: 20}, {month: 'Feb', value: 25}, {month: 'Mar', value: 30}, {month: 'Apr', value: 28}] },
+  notStarted: { value: '95', change: '-2.0%', label: 'Not Started', trend: [{month: 'Jan', value: 10}, {month: 'Feb', value: 12}, {month: 'Mar', value: 15}, {month: 'Apr', value: 13}] },
+  needsReview: { value: '15', change: '+25%', label: 'Needs Further Review', trend: [{month: 'Jan', value: 1}, {month: 'Feb', value: 2}, {month: 'Mar', value: 4}, {month: 'Apr', value: 3}] },
 };
 
 export const donutChartData = [
-  { name: 'Completed', value: 890, fill: 'var(--color-completed)' },
-  { name: 'Pending', value: 250, fill: 'var(--color-pending)' },
-  { name: 'Flagged', value: 110, fill: 'var(--color-flagged)' },
+  { name: 'Approved', value: 890 },
+  { name: 'Pending Review', value: 250 },
+  { name: 'In-Progress', value: 95 },
+  { name: 'Rejected', value: 110 },
 ];
 export const donutChartConfig = {
-  completed: { label: 'Completed', color: 'hsl(var(--chart-2))' },
-  pending: { label: 'Pending', color: 'hsl(var(--chart-4))' },
-  flagged: { label: 'Flagged', color: 'hsl(var(--chart-1))' },
+  approved: { label: 'Approved', color: 'hsl(var(--chart-2))' },
+  'pending review': { label: 'Pending Review', color: 'hsl(var(--chart-4))' },
+  'in-progress': { label: 'In-Progress', color: 'hsl(var(--chart-5))' },
+  rejected: { label: 'Rejected', color: 'hsl(var(--chart-1))' },
 };
 
 export const barChartData = [
-  { application: 'CAQH ProView', days: 20 },
-  { application: 'Manual Entry', days: 18 },
-  { application: 'Email Parsing', days: 15 },
-  { application: 'Availity API', days: 12 },
-  { application: 'State Portal', days: 10 },
+    { application: 'Manual Entry', days: 20 },
+    { application: 'CAQH ProView', days: 18 },
+    { application: 'Email Parsing', days: 15 },
+    { application: 'Availity API', days: 12 },
+    { application: 'State Portal', days: 10 },
 ];
 
 export const summaryTiles = [
-  { title: 'Providers Awaiting Action', value: '78', icon: Users },
-  { title: 'Missing Documents', value: '32', icon: FileWarning },
-  { title: 'Verification Failures', value: '12', icon: FolderClock },
-  { title: 'Reminder/Follow-Up Pending', value: '45', icon: Mail },
+  { title: 'Providers Awaiting Action', value: '78', icon: Users, items: ['Dr. John Smith', 'Dr. Emily White'] },
+  { title: 'Payers Awaiting Action', value: '32', icon: HandPlatter, items: ['Aetna', 'Cigna'] },
+  { title: 'Verification Centres Awaiting Action', value: '12', icon: Building, items: ['CA Medical Board', 'NY State Education Dept'] },
+  { title: 'Follow-up / Reminder Pending', value: '45', icon: Mail, items: ['Follow up with Dr. Michael Brown', 'Reminder to TX DMV'] },
 ];
 
 export const navLinks = [

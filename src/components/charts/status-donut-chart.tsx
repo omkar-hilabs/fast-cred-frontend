@@ -12,11 +12,12 @@ import {
 } from '@/components/ui/card';
 
 const chartdata = [
-  { name: 'Completed', value: 890 },
-  { name: 'Pending', value: 250 },
-  { name: 'Flagged', value: 110 },
+  { name: 'Approved', value: 890 },
+  { name: 'Rejected', value: 110 },
+  { name: 'Pending Review', value: 250 },
+  { name: 'In-Progress', value: 95 },
 ];
-const colors = ["emerald", "amber", "rose"];
+const colors = ["emerald", "rose", "amber", "sky"];
 
 export function StatusDonutChart() {
   return (
@@ -35,7 +36,7 @@ export function StatusDonutChart() {
             colors={colors}
             className="w-full h-48"
           />
-          <Legend categories={['Completed', 'Pending', 'Flagged']} colors={colors} className="mt-4" />
+          <Legend categories={['Approved', 'Rejected', 'Pending Review', 'In-Progress']} colors={colors} className="mt-4 flex-wrap" />
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">

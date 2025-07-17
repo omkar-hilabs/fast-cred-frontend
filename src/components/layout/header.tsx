@@ -5,8 +5,9 @@ import {
   Package2,
   PanelLeft,
   Search,
-  ShoppingCart,
   Users2,
+  FileText,
+  Mail
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -29,8 +30,47 @@ import {
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import { Logo } from '../icons/logo';
+
+function getBreadcrumbs(pathname: string) {
+    const pathParts = pathname.split('/').filter(part => part);
+    const breadcrumbs = [{ href: '/', label: 'Home' }];
+
+    let currentPath = '';
+    pathParts.forEach((part, index) => {
+        currentPath += `/${part}`;
+        const isLast = index === pathParts.length - 1;
+        
+        let label = part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
+        // Special cases
+        if (part.startsWith('APP-')) {
+            label = `Review ${part}`;
+        }
+
+
+        if (isLast) {
+            breadcrumbs.push({ href: currentPath, label: label, isPage: true });
+        } else {
+             breadcrumbs.push({ href: currentPath, label: label });
+        }
+    });
+
+    if (breadcrumbs.length <= 2) {
+      if(breadcrumbs.length == 2) {
+        return [breadcrumbs[1]];
+      }
+      return [];
+    }
+
+    return breadcrumbs.slice(1);
+}
+
 
 export default function AppHeader() {
+  const pathname = usePathname();
+  const breadcrumbs = getBreadcrumbs(pathname);
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Sheet>
@@ -44,10 +84,10 @@ export default function AppHeader() {
           <nav className="grid gap-6 text-lg font-medium">
             <Link
               href="#"
-              className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+              className="group flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
             >
-              <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-              <span className="sr-only">CredentialFlow</span>
+              <Logo />
+              <span className="sr-only">FastCred</span>
             </Link>
             <Link
               href="/executive-summary"
@@ -60,7 +100,7 @@ export default function AppHeader() {
               href="/applications/intake"
               className="flex items-center gap-4 px-2.5 text-foreground"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <FileText className="h-5 w-5" />
               Applications
             </Link>
             <Link
@@ -77,6 +117,13 @@ export default function AppHeader() {
               <Users2 className="h-5 w-5" />
               Verification Centres
             </Link>
+             <Link
+              href="/communication"
+              className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+            >
+              <Mail className="h-5 w-5" />
+              Communication
+            </Link>
             <Link
               href="/reports"
               className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
@@ -87,23 +134,22 @@ export default function AppHeader() {
           </nav>
         </SheetContent>
       </Sheet>
-      <Breadcrumb className="hidden md:flex">
+       <Breadcrumb className="hidden md:flex">
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="#">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="#">Products</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>All Products</BreadcrumbPage>
-          </BreadcrumbItem>
+          {breadcrumbs.map((crumb, index) => (
+            <React.Fragment key={crumb.href}>
+              <BreadcrumbItem>
+                {crumb.isPage ? (
+                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild>
+                    <Link href={crumb.href}>{crumb.label}</Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+              {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+            </React.Fragment>
+          ))}
         </BreadcrumbList>
       </Breadcrumb>
       <div className="relative ml-auto flex-1 md:grow-0">

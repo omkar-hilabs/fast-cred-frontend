@@ -15,8 +15,8 @@ const fontHeadline = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'CredentialFlow',
-  description: 'A Comprehensive End-to-End Provider Credentialing Web Application for US Healthcare Payers',
+  title: 'FastCred',
+  description: 'Fast track the provider credentialing.',
 };
 
 export default function RootLayout({
