@@ -26,7 +26,6 @@ export const barChartData = [
     { application: 'CAQH ProView', days: 18 },
     { application: 'Email Parsing', days: 15 },
     { application: 'Availity API', days: 12 },
-    { application: 'State Portal', days: 10 },
 ];
 
 export const summaryTiles = [
