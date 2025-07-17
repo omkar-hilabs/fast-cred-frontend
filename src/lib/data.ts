@@ -1,4 +1,4 @@
-import { FileText, Mail, Phone, Calendar, Clock, BarChart2, PieChart, Users, FileWarning, FolderClock, HandPlatter, Building } from 'lucide-react';
+import { FileText, Mail, Phone, Calendar, Clock, BarChart2, PieChart, Users, FileWarning, FolderClock, HandPlatter, Building, Package } from 'lucide-react';
 
 export const kpiData = {
   totalApplications: { value: '1,250', change: '+15.2%', label: 'Total Applications', trend: [{month: 'Jan', value: 100}, {month: 'Feb', value: 120}, {month: 'Mar', value: 150}, {month: 'Apr', value: 130}] },
@@ -10,15 +10,15 @@ export const kpiData = {
 
 export const donutChartData = [
   { name: 'Approved', value: 890 },
+  { name: 'Rejected', value: 110 },
   { name: 'Pending Review', value: 250 },
   { name: 'In-Progress', value: 95 },
-  { name: 'Rejected', value: 110 },
 ];
 export const donutChartConfig = {
   approved: { label: 'Approved', color: 'hsl(var(--chart-2))' },
+  rejected: { label: 'Rejected', color: 'hsl(var(--chart-1))' },
   'pending review': { label: 'Pending Review', color: 'hsl(var(--chart-4))' },
   'in-progress': { label: 'In-Progress', color: 'hsl(var(--chart-5))' },
-  rejected: { label: 'Rejected', color: 'hsl(var(--chart-1))' },
 };
 
 export const barChartData = [
@@ -39,7 +39,7 @@ export const summaryTiles = [
 export const navLinks = [
   { href: '/executive-summary', label: 'Executive Summary', icon: PieChart },
   { href: '/applications/intake', label: 'Applications', icon: FileText },
-  { href: '/credentialing', label: 'Credentialing', icon: FileText },
+  { href: '/credentialing', label: 'Credentialing', icon: Package },
   { href: '/verification-centres', label: 'Verification Centres', icon: Users },
   { href: '/communication', label: 'Communication', icon: Mail },
   { href: '/reports', label: 'Reports', icon: BarChart2 },

@@ -33,6 +33,7 @@ export interface TimelineEvent {
 export interface DocumentStatus {
     name: string;
     status: 'Verified' | 'Pending' | 'Flagged';
+    progress: number;
 }
 
 export interface VerificationCentre {
@@ -93,13 +94,15 @@ const timelines: Record<string, TimelineEvent[]> = {
     ]
 };
 
-const documentsStatus: DocumentStatus[] = [
-    { name: "Medical License", status: "Verified" },
-    { name: "Degree Certificate", status: "Pending" },
-    { name: "CV/Resume", status: "Pending" },
-    { name: "Driving License", status: "Flagged" },
-    { name: "Passport", status: "Verified" },
-];
+const documentsStatus: Record<string, DocumentStatus[]> = {
+    'default': [
+        { name: "Medical License", status: "Verified", progress: 100 },
+        { name: "Degree Certificate", status: "Pending", progress: 50 },
+        { name: "CV/Resume", status: "Pending", progress: 25 },
+        { name: "Driving License", status: "Flagged", progress: 75 },
+        { name: "Passport", status: "Verified", progress: 100 },
+    ]
+};
 
 const verificationCentres = {
   "Medical License": [
@@ -149,40 +152,31 @@ const recentReports: Report[] = [
 
 // Simulate API calls
 const api = {
-    getApplications: async (): Promise<Application[]> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getApplications: (): Application[] => {
         return applications;
     },
-    getApplicationById: async (id: string): Promise<Application | undefined> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getApplicationById: (id: string): Application | undefined => {
         return applications.find(app => app.id === id);
     },
-    getAiIssues: async (appId: string): Promise<AiIssue[]> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getAiIssues: (appId: string): AiIssue[] => {
         return aiIssues[appId] || aiIssues['default'];
     },
-    getTimeline: async (appId: string): Promise<TimelineEvent[]> => {
-         await new Promise(resolve => setTimeout(resolve, 200));
+    getTimeline: (appId: string): TimelineEvent[] => {
         return timelines[appId] || timelines['default'];
     },
-    getDocumentsStatus: async (appId: string): Promise<DocumentStatus[]> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return documentsStatus;
+    getDocumentsStatus: (appId: string): DocumentStatus[] => {
+        return documentsStatus[appId] || documentsStatus['default'];
     },
-    getVerificationCentres: async (): Promise<Record<string, VerificationCentre[]>> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getVerificationCentres: (): Record<string, VerificationCentre[]> => {
         return verificationCentres;
     },
-    getProvidersByOrg: async (): Promise<Record<string, string[]>> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getProvidersByOrg: (): Record<string, string[]> => {
         return providersByOrg;
     },
-    getEmails: async (): Promise<Email[]> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getEmails: (): Email[] => {
         return emails;
     },
-    getEmailById: async (id: number): Promise<Email | undefined> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getEmailById: (id: number): Email | undefined => {
         // a little more dynamic to show different selected emails
         const email = emails.find(e => e.id === id);
         if (email) {
@@ -197,8 +191,7 @@ const api = {
         }
         return selectedEmail; 
     },
-    getRecentReports: async (): Promise<Report[]> => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+    getRecentReports: (): Report[] => {
         return recentReports;
     }
 };
