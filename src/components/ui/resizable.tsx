@@ -1,6 +1,10 @@
 "use client"
 
-import { PanelGroup as PanelGroupPrimitive, Panel as PanelPrimitive, PanelResizeHandle as PanelResizeHandlePrimitive } from "react-resizable-panels"
+import {
+  PanelGroup as PanelGroupPrimitive,
+  Panel as PanelPrimitive,
+  PanelResizeHandle as PanelResizeHandlePrimitive,
+} from 'react-resizable-panels'
 
 import { cn } from "@/lib/utils"
 import * as React from "react"
