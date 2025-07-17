@@ -20,7 +20,10 @@ export default function AppSidebar() {
     if (href === '/applications/intake') {
       return pathname.startsWith('/applications');
     }
-    return pathname.startsWith(href);
+     if (href === '/credentialing') {
+      return pathname.startsWith('/credentialing');
+    }
+    return pathname === href;
   };
 
 
