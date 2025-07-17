@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { donutChartData } from '@/lib/mock-data';
 
-const colors = ["hsl(var(--chart-2))", "hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+const colors = ["green", "red", "orange", "blue"];
 
 const valueFormatter = (number: number) =>
   `${new Intl.NumberFormat('us').format(number).toString()}`;
