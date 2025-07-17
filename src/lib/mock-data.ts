@@ -230,6 +230,31 @@ const recentReports: Report[] = [
     { name: "Pending Applications - CA Market", date: "2023-12-28", type: "Excel" },
 ];
 
+
+export const kpiData = {
+    totalApplications: { value: '1,250', change: '+15.2%', label: 'Total Applications', trend: [{month: 'Jan', value: 100}, {month: 'Feb', value: 120}, {month: 'Mar', value: 150}, {month: 'Apr', value: 130}, {month: 'May', value: 180}, {month: 'Jun', value: 200}] },
+    completed: { value: '890', change: '+10.1%', label: 'Completed', trend: [{month: 'Jan', value: 70}, {month: 'Feb', value: 80}, {month: 'Mar', value: 90}, {month: 'Apr', value: 85}, {month: 'May', value: 100}, {month: 'Jun', value: 110}] },
+    inProgress: { value: '250', change: '+5.5%', label: 'In-Progress', trend: [{month: 'Jan', value: 20}, {month: 'Feb', value: 25}, {month: 'Mar', value: 30}, {month: 'Apr', value: 28}, {month: 'May', value: 40}, {month: 'Jun', value: 45}] },
+    notStarted: { value: '95', change: '-2.0%', label: 'Not Started', trend: [{month: 'Jan', value: 10}, {month: 'Feb', value: 12}, {month: 'Mar', value: 15}, {month: 'Apr', value: 13}, {month: 'May', value: 20}, {month: 'Jun', value: 25}] },
+    needsReview: { value: '15', change: '+25%', label: 'Needs Further Review', trend: [{month: 'Jan', value: 1}, {month: 'Feb', value: 2}, {month: 'Mar', value: 4}, {month: 'Apr', value: 3}, {month: 'May', value: 5}, {month: 'Jun', value: 6}] },
+};
+
+export const donutChartData = [
+    { name: 'Approved', value: 890, color: 'green-500' },
+    { name: 'Rejected', value: 110, color: 'red-500' },
+    { name: 'Pending Review', value: 250, color: 'orange-500' },
+    { name: 'In-Progress', value: 95, color: 'blue-500' },
+  ];
+
+export const barChartData = [
+    { month: 'Jan', avgTime: 22 },
+    { month: 'Feb', avgTime: 25 },
+    { month: 'Mar', avgTime: 19 },
+    { month: 'Apr', avgTime: 28 },
+    { month: 'May', avgTime: 24 },
+    { month: 'Jun', avgTime: 21 },
+];
+
 export const summaryTiles = [
   { title: 'Providers Awaiting Action', value: '5', icon: Users, items: applications.filter(a => a.status === 'Needs Further Review' || a.status === 'Pending Review').slice(0, 5).map(a => ({ id: a.id, name: a.name, status: a.status, market: a.market })) },
   { title: 'Payers Awaiting Action', value: '4', icon: HandPlatter, items: [] },
