@@ -1,35 +1,29 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { FileDown, Mail } from "lucide-react"
-
-const verificationCentres = {
-  "Medical License": [
-    { name: "CA Medical Board", state: "CA", email: "verify@mbc.ca.gov", type: "State Board" },
-    { name: "NY State Education Dept", state: "NY", email: "opverify@nysed.gov", type: "State Dept" },
-  ],
-  "Driving License": [
-    { name: "California DMV", state: "CA", email: "records@dmv.ca.gov", type: "DMV" },
-    { name: "New York DMV", state: "NY", email: "verify@dmv.ny.gov", type: "DMV" },
-  ],
-  "DEA Certificate": [
-    { name: "Drug Enforcement Administration", state: "Federal", email: "verification@dea.gov", type: "Federal Agency" },
-  ],
-};
-
-const providersByOrg = {
-  "CA Medical Board": ["Dr. John Smith", "Dr. Emily White"],
-  "NY State Education Dept": ["Dr. Michael Brown"],
-};
+import mockApi, { type VerificationCentre } from '@/lib/mock-data';
 
 
 export default function VerificationCentresPage() {
     const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
     const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
+    const [verificationCentres, setVerificationCentres] = useState<Record<string, VerificationCentre[]>>({});
+    const [providersByOrg, setProvidersByOrg] = useState<Record<string, string[]>>({});
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const centres = await mockApi.getVerificationCentres();
+            const providers = await mockApi.getProvidersByOrg();
+            setVerificationCentres(centres);
+            setProvidersByOrg(providers);
+        };
+        fetchData();
+    }, []);
 
     const handleGenerateEmail = (orgName: string) => {
         setSelectedOrg(orgName);

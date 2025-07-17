@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, FileUp, ListFilter } from 'lucide-react';
-import { applications } from '@/lib/data';
+import mockApi from '@/lib/mock-data';
 
 const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
@@ -20,7 +20,9 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
 }
 
 
-export default function ApplicationReview() {
+export default async function ApplicationReview() {
+  const applications = await mockApi.getApplications();
+
   return (
     <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-3">

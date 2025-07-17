@@ -6,18 +6,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileDown, History } from "lucide-react";
+import mockApi from "@/lib/mock-data";
+
 
 const reportFields = [
     "Provider Info", "Application Details", "Documents Uploaded", "Credentialing Status", "Verification Log", "Communication Log"
 ];
 
-const recentReports = [
-    { name: "Q4 2023 Credentialing Summary", date: "2024-01-05", type: "PDF" },
-    { name: "Active Cardiology Roster", date: "2024-01-02", type: "Excel" },
-    { name: "Pending Applications - CA Market", date: "2023-12-28", type: "Excel" },
-]
+export default async function ReportsPage() {
+  const recentReports = await mockApi.getRecentReports();
 
-export default function ReportsPage() {
   return (
     <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
       <div className="lg:col-span-2 space-y-6">

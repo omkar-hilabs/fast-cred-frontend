@@ -1,5 +1,6 @@
-'use client';
 
+'use client';
+import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { communicationTabs } from "@/lib/data"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -10,25 +11,29 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Search } from "lucide-react"
-
-const emails = [
-    { id: 1, from: 'Dr. John Smith', subject: 'Re: Missing Document', date: '2 hours ago', unread: true },
-    { id: 2, from: 'CA Medical Board', subject: 'Verification Complete for E. White', date: '1 day ago', unread: false },
-    { id: 3, from: 'System Reminder', subject: 'Follow-up required for APP-003', date: '2 days ago', unread: false },
-];
-
-const selectedEmail = {
-    from: 'Dr. John Smith',
-    to: 'Me',
-    subject: 'Re: Missing Document',
-    body: `Hello,\n\nI have attached the missing degree certificate you requested.\n\nPlease let me know if there is anything else you need.\n\nBest,\nDr. John Smith`,
-    thread: [
-        { from: 'Credentialing Dept', body: 'Dear Dr. Smith, we are missing your degree certificate. Please provide it at your earliest convenience.' }
-    ]
-}
-
+import mockApi, { type Email } from '@/lib/mock-data';
 
 export default function CommunicationPage() {
+    const [emails, setEmails] = useState<Email[]>([]);
+    const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const emailList = await mockApi.getEmails();
+            setEmails(emailList);
+            if(emailList.length > 0) {
+                const detailedEmail = await mockApi.getEmailById(emailList[0].id);
+                setSelectedEmail(detailedEmail || null);
+            }
+        };
+        fetchData();
+    }, []);
+
+    const handleSelectEmail = async (emailId: number) => {
+        const detailedEmail = await mockApi.getEmailById(emailId);
+        setSelectedEmail(detailedEmail || null);
+    }
+
   return (
     <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight font-headline">Communication Center</h1>
@@ -65,7 +70,7 @@ export default function CommunicationPage() {
                         <Separator />
                         <div className="p-2">
                             {emails.map(email => (
-                                <div key={email.id} className={`p-3 rounded-lg cursor-pointer ${email.id === 1 ? 'bg-accent' : 'hover:bg-muted'}`}>
+                                <div key={email.id} className={`p-3 rounded-lg cursor-pointer ${selectedEmail?.id === email.id ? 'bg-accent' : 'hover:bg-muted'}`} onClick={() => handleSelectEmail(email.id)}>
                                     <div className="flex justify-between items-start">
                                         <p className="font-semibold text-sm">{email.from}</p>
                                         {email.unread && <div className="w-2 h-2 rounded-full bg-primary" />}
@@ -78,6 +83,7 @@ export default function CommunicationPage() {
                     </ResizablePanel>
                     <ResizableHandle withHandle />
                     <ResizablePanel defaultSize={70}>
+                        {selectedEmail ? (
                          <div className="flex flex-col h-full">
                             <div className="p-4 border-b">
                                 <h2 className="text-lg font-semibold">{selectedEmail.subject}</h2>
@@ -94,11 +100,15 @@ export default function CommunicationPage() {
                             </div>
                             <div className="flex-1 p-4 overflow-y-auto">
                                 <p className="text-sm whitespace-pre-wrap">{selectedEmail.body}</p>
-                                <Separator className="my-4" />
-                                <div className="bg-muted p-3 rounded-md">
-                                    <p className="text-xs text-muted-foreground">On Jan 2, 2024, Credentialing Dept wrote:</p>
-                                    <blockquote className="text-sm italic border-l-2 pl-2 mt-1">{selectedEmail.thread[0].body}</blockquote>
-                                </div>
+                                {selectedEmail.thread && selectedEmail.thread.length > 0 && (
+                                    <>
+                                        <Separator className="my-4" />
+                                        <div className="bg-muted p-3 rounded-md">
+                                            <p className="text-xs text-muted-foreground">On Jan 2, 2024, {selectedEmail.thread[0].from} wrote:</p>
+                                            <blockquote className="text-sm italic border-l-2 pl-2 mt-1">{selectedEmail.thread[0].body}</blockquote>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                              <div className="p-4 border-t bg-background">
                                 <Textarea placeholder="Type your reply... (use tags like @providerName, @documentName)" />
@@ -107,6 +117,11 @@ export default function CommunicationPage() {
                                 </div>
                             </div>
                          </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-full">
+                                <p className="text-muted-foreground">Select an email to read</p>
+                            </div>
+                        )}
                     </ResizablePanel>
                 </ResizablePanelGroup>
                 </div>

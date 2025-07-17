@@ -3,9 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { applications } from '@/lib/data';
-
-const credentialingApps = applications.filter(app => ['In-Progress', 'Needs Further Review', 'Completed'].includes(app.status));
+import mockApi from '@/lib/mock-data';
 
 const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
@@ -16,7 +14,10 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
     }
 }
 
-export default function CredentialingPage() {
+export default async function CredentialingPage() {
+  const allApps = await mockApi.getApplications();
+  const credentialingApps = allApps.filter(app => ['In-Progress', 'Needs Further Review', 'Completed'].includes(app.status));
+  
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold tracking-tight font-headline">Credentialing Dashboard</h1>
@@ -65,7 +66,7 @@ export default function CredentialingPage() {
             <TableBody>
               {credentialingApps.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell>P{app.id.split('-')[1]}</TableCell>
+                  <TableCell>{app.providerId}</TableCell>
                   <TableCell className="font-medium">{app.name}</TableCell>
                   <TableCell>{app.id}</TableCell>
                   <TableCell><Badge variant={app.status === 'Completed' ? 'default' : 'secondary'}>{app.status === 'Completed' ? 'Verified' : 'Pending'}</Badge></TableCell>

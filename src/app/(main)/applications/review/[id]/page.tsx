@@ -5,40 +5,26 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 import { CheckCircle, XCircle, Edit, AlertCircle, Save, Mail } from 'lucide-react';
+import mockApi from '@/lib/mock-data';
+import { Label } from '@/components/ui/label';
 
-const mockApplication = {
-  id: 'APP-002',
-  name: 'Dr. Emily White',
-  providerId: 'P54321',
-  npi: '0987654321',
-  specialty: 'Dermatology',
-  address: '456 Skin Ave, Suite 200, Beverly Hills, CA, 90210'
-};
+export default async function ApplicationDetailsPage({ params }: { params: { id: string } }) {
 
-const aiIssues = [
-  { field: 'Address', issue: 'ZIP code mismatch with state.', confidence: 0.95, value: '90210' },
-  { field: 'NPI', issue: 'NPI number not found in national registry.', confidence: 0.82, value: '0987654321' },
-  { field: 'CV/Resume', issue: 'Gap in employment history (3 months).', confidence: 0.65, value: 'Missing: Jan 2020 - Mar 2020' },
-];
+  const application = await mockApi.getApplicationById(params.id);
+  const aiIssues = await mockApi.getAiIssues(params.id);
+  const timeline = await mockApi.getTimeline(params.id);
 
-const timeline = [
-    { by: 'System', comment: 'Application received via CAQH.', time: '2 days ago' },
-    { by: 'Alice J.', comment: 'Initial review started.', time: '1 day ago' },
-    { by: 'AI Assistant', comment: '3 potential issues detected.', time: '1 day ago' },
-    { by: 'Bob W.', comment: 'Assigned to self for verification.', time: '4 hours ago' },
-];
-
-
-export default function ApplicationDetailsPage({ params }: { params: { id: string } }) {
+  if (!application) {
+    return <div>Application not found</div>
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Application Details: {mockApplication.name} ({params.id})</CardTitle>
+                    <CardTitle>Application Details: {application.name} ({params.id})</CardTitle>
                     <CardDescription>Review and take action on the application fields.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -63,7 +49,7 @@ export default function ApplicationDetailsPage({ params }: { params: { id: strin
                      <Separator />
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <p><span className="font-semibold">Provider ID:</span> {mockApplication.providerId}</p>
+                          <p><span className="font-semibold">Provider ID:</span> {application.providerId}</p>
                           <div className="flex gap-2">
                              <Button size="sm" variant="outline" className="h-7 gap-1"><CheckCircle className="h-3.5 w-3.5" /> Approve</Button>
                              <Button size="sm" variant="outline" className="h-7 gap-1"><XCircle className="h-3.5 w-3.5" /> Reject</Button>
@@ -71,7 +57,7 @@ export default function ApplicationDetailsPage({ params }: { params: { id: strin
                           </div>
                         </div>
                          <div className="flex justify-between items-center">
-                          <p><span className="font-semibold">Specialty:</span> {mockApplication.specialty}</p>
+                          <p><span className="font-semibold">Specialty:</span> {application.specialty}</p>
                            <div className="flex gap-2">
                              <Button size="sm" variant="outline" className="h-7 gap-1"><CheckCircle className="h-3.5 w-3.5" /> Approve</Button>
                              <Button size="sm" variant="outline" className="h-7 gap-1"><XCircle className="h-3.5 w-3.5" /> Reject</Button>

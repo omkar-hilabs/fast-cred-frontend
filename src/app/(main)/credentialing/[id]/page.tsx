@@ -7,17 +7,21 @@ import Image from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CheckCircle, Clock, AlertTriangle, Mail, Send, FileCheck2, FileClock, FileX2 } from 'lucide-react';
+import mockApi, { DocumentStatus } from '@/lib/mock-data';
 
 const workflowSteps = ["Original Upload", "OCR/LLM Output", "API Verification", "Primary Source"];
 const currentStep = 2;
 
-const documents = [
-    { name: "Medical License", status: "Verified", icon: FileCheck2, color: "text-green-500" },
-    { name: "Degree Certificate", status: "Pending", icon: FileClock, color: "text-yellow-500" },
-    { name: "CV/Resume", status: "Pending", icon: FileClock, color: "text-yellow-500" },
-    { name: "Driving License", status: "Flagged", icon: FileX2, color: "text-red-500" },
-    { name: "Passport", status: "Verified", icon: FileCheck2, color: "text-green-500" },
-];
+const getDocumentIcon = (status: DocumentStatus['status']) => {
+    switch (status) {
+        case 'Verified':
+            return { icon: FileCheck2, color: 'text-green-500' };
+        case 'Pending':
+            return { icon: FileClock, color: 'text-yellow-500' };
+        case 'Flagged':
+            return { icon: FileX2, color: 'text-red-500' };
+    }
+};
 
 const DocumentCard = ({ title, children, status }: { title: string, children: React.ReactNode, status: 'Verified' | 'Pending' | 'Failed' }) => {
     const statusIcon = {
@@ -41,8 +45,9 @@ const DocumentCard = ({ title, children, status }: { title: string, children: Re
     );
 };
 
-export default function CredentialingWorkflowPage({ params }: { params: { id: string } }) {
+export default async function CredentialingWorkflowPage({ params }: { params: { id: string } }) {
   const progress = ((currentStep + 1) / workflowSteps.length) * 100;
+  const documents = await mockApi.getDocumentsStatus(params.id);
 
   return (
     <div className="space-y-6">
@@ -127,15 +132,17 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                     </CardHeader>
                     <CardContent>
                         <ul className="space-y-3">
-                            {documents.map(doc => (
+                            {documents.map(doc => {
+                                const { icon: Icon, color } = getDocumentIcon(doc.status);
+                                return (
                                 <li key={doc.name} className="flex items-center justify-between">
                                     <span className="flex items-center gap-2 text-sm">
-                                        <doc.icon className={`h-4 w-4 ${doc.color}`} />
+                                        <Icon className={`h-4 w-4 ${color}`} />
                                         {doc.name}
                                     </span>
                                     <Badge variant={doc.status === 'Verified' ? 'default' : doc.status === 'Pending' ? 'secondary' : 'destructive'}>{doc.status}</Badge>
                                 </li>
-                            ))}
+                            )})}
                         </ul>
                     </CardContent>
                 </Card>
