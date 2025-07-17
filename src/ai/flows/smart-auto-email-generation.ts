@@ -1,4 +1,3 @@
-// This file is machine-generated - edit at your own risk.
 'use server';
 /**
  * @fileOverview An AI agent that automatically generates draft emails with relevant attachments for communication with providers and verification centers.
@@ -39,7 +38,17 @@ export type SmartAutoEmailGenerationOutput = z.infer<typeof SmartAutoEmailGenera
 export async function smartAutoEmailGeneration(
   input: SmartAutoEmailGenerationInput
 ): Promise<SmartAutoEmailGenerationOutput> {
-  return smartAutoEmailGenerationFlow(input);
+  // return smartAutoEmailGenerationFlow(input);
+  console.log('Simulating smartAutoEmailGeneration with input:', input);
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  let draft = `Dear ${input.recipientName},\n\n`;
+  draft += `${input.context}\n\n`;
+  draft += `Thank you,\nCredentialing Department`;
+
+  return {
+    emailDraft: draft
+  };
 }
 
 const prompt = ai.definePrompt({

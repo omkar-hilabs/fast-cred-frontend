@@ -95,7 +95,7 @@ export default function ApplicationDetailsPage({ params }: { params: { id: strin
                      <div className="flex gap-2">
                         <Button className="flex-1"><Save className="mr-2 h-4 w-4" /> Save to Mail List</Button>
                         <Button asChild className="flex-1" variant="default">
-                            <Link href={`/credentialing/${params.id}`}><Mail className="mr-2 h-4 w-4" /> Proceed with Credentialing</Link>
+                            <Link href={`/credentialing/${params.id}`}><Mail className="mr-2 h-4 w-4" /> Proceed</Link>
                         </Button>
                     </div>
                 </CardContent>

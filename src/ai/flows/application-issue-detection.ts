@@ -37,7 +37,17 @@ const ApplicationIssueDetectionOutputSchema = z.object({
 export type ApplicationIssueDetectionOutput = z.infer<typeof ApplicationIssueDetectionOutputSchema>;
 
 export async function detectApplicationIssues(input: ApplicationIssueDetectionInput): Promise<ApplicationIssueDetectionOutput> {
-  return applicationIssueDetectionFlow(input);
+  // return applicationIssueDetectionFlow(input);
+  console.log('Simulating detectApplicationIssues with input:', input);
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  return {
+    issues: [
+      { field: 'Address', issue: 'ZIP code mismatch with state.', confidenceScore: 0.95 },
+      { field: 'NPI', issue: 'NPI number not found in national registry.', confidenceScore: 0.82 },
+      { field: 'CV/Resume', issue: 'Gap in employment history (3 months).', confidenceScore: 0.65 },
+    ],
+    summary: 'AI detected 3 issues, including a potential address/ZIP mismatch and an unverified NPI. Employment history shows a minor gap.'
+  };
 }
 
 const applicationIssueDetectionPrompt = ai.definePrompt({

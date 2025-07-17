@@ -40,7 +40,23 @@ export type ApproveModifyRejectSuggestionsOutput = z.infer<
 export async function generateApproveModifyRejectSuggestions(
   input: ApproveModifyRejectSuggestionsInput
 ): Promise<ApproveModifyRejectSuggestionsOutput> {
-  return generateApproveModifyRejectSuggestionsFlow(input);
+  // return generateApproveModifyRejectSuggestionsFlow(input);
+  console.log('Simulating generateApproveModifyRejectSuggestions with input:', input);
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  if (input.fieldData.includes('90210')) {
+      return {
+          suggestion: 'reject',
+          reasoning: 'The ZIP code does not match the provided state based on public records.',
+          confidenceScore: 0.98,
+      };
+  }
+  
+  return {
+    suggestion: 'approve',
+    reasoning: 'The provided data appears to be valid and consistent with the application context.',
+    confidenceScore: 0.95,
+  };
 }
 
 const prompt = ai.definePrompt({
