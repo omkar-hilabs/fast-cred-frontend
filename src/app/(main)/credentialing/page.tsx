@@ -19,7 +19,7 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
 export default function CredentialingPage() {
   return (
     <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight font-headline">Credentialing Dashboard</h1>
+      <h1 className="text-2xl font-bold tracking-tight font-headline">Credentialing Dashboard</h1>
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
@@ -43,7 +43,7 @@ export default function CredentialingPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{credentialingApps.filter(a => a.status === 'In-Progress').length}</p>
-          </Content>
+          </CardContent>
         </Card>
       </div>
 
