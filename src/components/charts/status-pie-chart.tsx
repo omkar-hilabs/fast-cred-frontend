@@ -2,7 +2,7 @@
 'use client';
 
 import { TrendingUp } from 'lucide-react';
-import { DonutChart, Legend } from '@tremor/react';
+import { PieChart, Legend } from '@tremor/react';
 import {
   Card,
   CardContent,
@@ -18,7 +18,7 @@ const colors = ["green", "red", "orange", "blue"];
 const valueFormatter = (number: number) =>
   `${new Intl.NumberFormat('us').format(number).toString()}`;
 
-export function StatusDonutChart() {
+export function StatusPieChart() {
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -28,7 +28,7 @@ export function StatusDonutChart() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-          <DonutChart
+          <PieChart
             data={donutChartData}
             category="value"
             index="name"

@@ -5,11 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { kpiData, summaryTiles } from '@/lib/mock-data';
 import { KpiCard } from '@/components/kpi-card';
-import { StatusDonutChart } from '@/components/charts/status-donut-chart';
+import { StatusPieChart } from '@/components/charts/status-pie-chart';
 import { TimeToCredentialBarChart } from '@/components/charts/time-to-credential-bar-chart';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { List, ListItem } from '@tremor/react';
+import { Logo } from '@/components/icons/logo';
 
 export default function ExecutiveSummary() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +26,10 @@ export default function ExecutiveSummary() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-        <h1 className="text-2xl font-bold tracking-tight font-headline">Executive Summary</h1>
+        <div className='flex items-center gap-2'>
+            <Logo />
+            <h1 className="text-2xl font-bold tracking-tight font-headline text-black">Executive Summary</h1>
+        </div>
         <div className="flex items-center gap-2 mt-4 md:mt-0">
           <Select defaultValue="all">
             <SelectTrigger className="w-[150px]">
@@ -82,7 +86,7 @@ export default function ExecutiveSummary() {
           <TimeToCredentialBarChart />
         </div>
         <div className="lg:col-span-3">
-            <StatusDonutChart />
+            <StatusPieChart />
         </div>
       </div>
       
