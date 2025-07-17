@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { kpiData, summaryTiles } from '@/lib/mock-data';
 import { KpiCard } from '@/components/kpi-card';
-import { StatusDonutChart } from '@/components/charts/status-donut-chart';
+import { StatusDonutChart } from '@/components/charts/status-pie-chart';
 import { TimeToCredentialBarChart } from '@/components/charts/time-to-credential-bar-chart';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
