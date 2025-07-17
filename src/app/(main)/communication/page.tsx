@@ -12,10 +12,12 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Search } from "lucide-react"
 import mockApi, { type Email } from '@/lib/mock-data';
+import { cn } from '@/lib/utils';
 
 export default function CommunicationPage() {
     const [emails, setEmails] = useState<Email[]>([]);
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+    const [activeTab, setActiveTab] = useState('email');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,10 +40,14 @@ export default function CommunicationPage() {
     <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight font-headline">Communication Center</h1>
 
-        <Tabs defaultValue="email" className="w-full">
+        <Tabs defaultValue="email" className="w-full" onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
                  {communicationTabs.map((tab) => (
-                    <TabsTrigger value={tab.value} key={tab.value} className="gap-2">
+                    <TabsTrigger 
+                        value={tab.value} 
+                        key={tab.value} 
+                        className={cn("gap-2", activeTab === tab.value && 'bg-primary text-primary-foreground')}
+                    >
                         <tab.icon className="h-4 w-4"/> {tab.label}
                     </TabsTrigger>
                  ))}

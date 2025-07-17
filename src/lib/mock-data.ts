@@ -1,3 +1,4 @@
+
 import { Users, HandPlatter, Building, Mail } from 'lucide-react';
 
 export interface Application {
@@ -240,10 +241,10 @@ export const kpiData = {
 };
 
 export const donutChartData = [
-    { name: 'Approved', value: 890, color: 'green-500' },
-    { name: 'Rejected', value: 110, color: 'red-500' },
-    { name: 'Pending Review', value: 250, color: 'orange-500' },
-    { name: 'In-Progress', value: 95, color: 'blue-500' },
+    { name: 'Approved', value: 890 },
+    { name: 'Rejected', value: 110 },
+    { name: 'Pending Review', value: 250 },
+    { name: 'In-Progress', value: 95 },
   ];
 
 export const barChartData = [
