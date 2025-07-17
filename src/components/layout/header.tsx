@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Home,
   LineChart,
@@ -32,6 +34,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Logo } from '../icons/logo';
+import React from 'react';
 
 function getBreadcrumbs(pathname: string) {
     const pathParts = pathname.split('/').filter(part => part);
@@ -153,12 +156,7 @@ export default function AppHeader() {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="relative ml-auto flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search..."
-          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
-        />
+        
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
