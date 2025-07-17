@@ -1,3 +1,4 @@
+
 // This file contains mock data for the application.
 // In a real application, this data would be fetched from a database.
 
@@ -125,6 +126,8 @@ const allVerificationCentresList: VerificationCentre[] = Object.values(verificat
 const providersByOrg: Record<string, string[]> = {
   "CA Medical Board": ["Dr. John Smith", "Dr. Emily White"],
   "NY State Education Dept": ["Dr. Michael Brown"],
+  "California DMV": ["Dr. Sarah Miller", "Dr. David Wilson"],
+  "Drug Enforcement Administration": ["Dr. Jessica Garcia"],
 };
 
 
@@ -179,6 +182,10 @@ const api = {
     },
     getProvidersByOrg: (): Record<string, string[]> => {
         return providersByOrg;
+    },
+    getUnverifiedProvidersForOrg: (orgName: string): Application[] => {
+        const providerNames = providersByOrg[orgName] || [];
+        return applications.filter(app => providerNames.includes(app.name) && app.status !== 'Completed' && app.status !== 'Closed');
     },
     getEmails: (): Email[] => {
         return emails;

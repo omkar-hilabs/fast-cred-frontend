@@ -1,18 +1,17 @@
+
 'use client';
 import { useEffect, useState } from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { FileDown, Mail } from "lucide-react"
+import { FileDown, Mail, ArrowRight, Building, BookUser } from "lucide-react"
 import mockApi, { type VerificationCentre } from '@/lib/mock-data';
-
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export default function VerificationCentresPage() {
-    const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
-    const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
     const [verificationCentres, setVerificationCentres] = useState<Record<string, VerificationCentre[]>>({});
+    const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
     const [providersByOrg, setProvidersByOrg] = useState<Record<string, string[]>>({});
 
     useEffect(() => {
@@ -21,24 +20,62 @@ export default function VerificationCentresPage() {
             const providers = await mockApi.getProvidersByOrg();
             setVerificationCentres(centres);
             setProvidersByOrg(providers);
+            if (centres && Object.keys(centres).length > 0) {
+                setSelectedDocType(Object.keys(centres)[0]);
+            }
         };
         fetchData();
     }, []);
 
-    const handleGenerateEmail = (orgName: string) => {
-        setSelectedOrg(orgName);
-        setIsEmailDialogOpen(true);
-    }
+    const handleSelectDocType = (docType: string) => {
+        setSelectedDocType(docType);
+    };
+
+    const docTypes = Object.keys(verificationCentres);
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight font-headline">Verification Centres</h1>
-      <p className="text-muted-foreground">Manage and contact organizations for primary source verification.</p>
+        <div>
+            <h1 className="text-2xl font-bold tracking-tight font-headline">Verification Centres</h1>
+            <p className="text-muted-foreground">Manage and contact organizations for primary source verification.</p>
+        </div>
 
-      <Accordion type="single" collapsible className="w-full">
-        {Object.entries(verificationCentres).map(([docType, orgs]) => (
-          <AccordionItem value={docType} key={docType}>
-            <AccordionTrigger className="text-lg font-semibold">{docType}</AccordionTrigger>
-            <AccordionContent>
+        <Card>
+            <CardHeader>
+                <CardTitle>Select Document Type</CardTitle>
+                <CardDescription>Choose a document to see the associated verification organizations.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {docTypes.map(docType => (
+                    <Card 
+                        key={docType}
+                        onClick={() => handleSelectDocType(docType)}
+                        className={cn(
+                            "cursor-pointer transition-all hover:shadow-md",
+                            selectedDocType === docType ? 'border-primary ring-2 ring-primary' : 'hover:border-primary/50'
+                        )}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-base font-medium">{docType}</CardTitle>
+                            <BookUser className="h-5 w-5 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground">{(verificationCentres[docType] || []).length} Organizations</p>
+                        </CardContent>
+                    </Card>
+                ))}
+                </div>
+            </CardContent>
+        </Card>
+      
+      {selectedDocType && verificationCentres[selectedDocType] && (
+        <Card>
+            <CardHeader>
+                <CardTitle>Organizations for <span className="text-primary">{selectedDocType}</span></CardTitle>
+                <CardDescription>Select an organization to view pending providers.</CardDescription>
+            </CardHeader>
+            <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -47,60 +84,32 @@ export default function VerificationCentresPage() {
                     <TableHead>Email</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Providers Pending</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead><span className="sr-only">Actions</span></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orgs.map((org) => (
+                  {verificationCentres[selectedDocType].map((org) => (
                     <TableRow key={org.name}>
                       <TableCell className="font-medium">{org.name}</TableCell>
                       <TableCell>{org.state}</TableCell>
                       <TableCell>{org.email}</TableCell>
                       <TableCell>{org.type}</TableCell>
                       <TableCell>{(providersByOrg as any)[org.name]?.length || 0}</TableCell>
-                      <TableCell className="space-x-2">
-                        <Button variant="outline" size="sm" className="h-8 gap-1"><FileDown className="h-4 w-4" /> Generate Excel</Button>
-                        <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => handleGenerateEmail(org.name)}><Mail className="h-4 w-4" /> Generate Email</Button>
+                      <TableCell>
+                         <Button asChild variant="outline" size="sm" className="h-8 gap-1">
+                            <Link href={`/verification-centres/${encodeURIComponent(selectedDocType)}/${encodeURIComponent(org.name)}`}>
+                                View Providers <ArrowRight className="h-4 w-4" />
+                            </Link>
+                         </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+            </CardContent>
+        </Card>
+      )}
 
-       <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
-        <DialogContent className="sm:max-w-[625px]">
-            <DialogHeader>
-            <DialogTitle>Draft Email to {selectedOrg}</DialogTitle>
-            <DialogDescription>
-                Review and send the verification request email.
-            </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-            <Textarea
-                rows={10}
-                defaultValue={`Subject: Provider Verification Request
-
-Dear ${selectedOrg},
-
-We are writing to request primary source verification for the following providers:
-- ${(providersByOrg as any)[selectedOrg || ""]?.join('\n- ') || "N/A"}
-
-Attached are the signed releases. Please let us know if you require any further information.
-
-Thank you,
-Credentialing Department`}
-            />
-            </div>
-            <DialogFooter>
-                <Button type="button" variant="secondary" onClick={() => setIsEmailDialogOpen(false)}>Cancel</Button>
-                <Button type="submit">Send Email</Button>
-            </DialogFooter>
-        </DialogContent>
-        </Dialog>
     </div>
   );
 }
