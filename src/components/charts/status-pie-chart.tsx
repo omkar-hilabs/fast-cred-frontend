@@ -2,7 +2,7 @@
 'use client';
 
 import { TrendingUp } from 'lucide-react';
-import { PieChart, Legend } from '@tremor/react';
+import { DonutChart, Legend } from '@tremor/react';
 import {
   Card,
   CardContent,
@@ -28,7 +28,7 @@ export function StatusPieChart() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-          <PieChart
+          <DonutChart
             data={donutChartData}
             category="value"
             index="name"
