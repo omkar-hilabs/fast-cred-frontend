@@ -2,6 +2,7 @@
 
 // This file contains mock data for the application.
 // In a real application, this data would be fetched from a database.
+import { Users, HandPlatter, Building, Mail } from 'lucide-react';
 
 export interface Application {
     id: string;
@@ -74,6 +75,10 @@ const applications: Application[] = [
     { id: 'APP-006', providerId: 'P77889', name: 'Dr. Jessica Garcia', status: 'Completed', progress: 100, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'National', specialty: 'Oncology', address: '303 Hope Dr, Cure City, WA, 98101', npi: '4564564567' },
     { id: 'APP-007', providerId: 'P99999', name: 'Dr. Robert King', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'California', specialty: 'Cardiology', address: '1 Heart Way, Loveland, CA, 90210', npi: '9998887776' },
     { id: 'APP-008', providerId: 'P88888', name: 'Dr. Linda Martinez', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'New York', specialty: 'Neurology', address: '2 Nerve St, Big Apple, NY, 10001', npi: '8887776665' },
+    { id: 'APP-009', providerId: 'P10101', name: 'Dr. Kevin Lee', status: 'In-Progress', progress: 60, assignee: 'Charlie Davis', source: 'Manual Entry', market: 'California', specialty: 'Dermatology', address: '101 Skin Ave, Beverly Hills, CA, 90210', npi: '1010101010' },
+    { id: 'APP-010', providerId: 'P20202', name: 'Dr. Karen Hall', status: 'Pending Review', progress: 20, assignee: 'Unassigned', source: 'Manual Entry', market: 'Texas', specialty: 'Pediatrics', address: '202 Child Way, Kidston, TX, 75001', npi: '2020202020' },
+    { id: 'APP-011', providerId: 'P30303', name: 'Dr. Steven Young', status: 'In-Progress', progress: 80, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'Florida', specialty: 'Orthopedics', address: '303 Bone Ln, Jointsville, FL, 33101', npi: '3030303030' },
+    { id: 'APP-012', providerId: 'P40404', name: 'Dr. James Lee', status: 'Needs Further Review', progress: 95, assignee: 'Alice Johnson', source: 'Email Parsing', market: 'New York', specialty: 'Cardiology', address: '404 Heart Way, Loveland, NY, 10001', npi: '4040404040' },
 ];
 
 const aiIssues: Record<string, AiIssue[]> = {
@@ -141,16 +146,17 @@ const allVerificationCentresList: VerificationCentre[] = Object.values(verificat
 
 
 const providersByOrg: Record<string, string[]> = {
-  "CA Medical Board": ["Dr. John Smith", "Dr. Emily White", "Dr. Robert King"],
-  "NY State Education Dept": ["Dr. Michael Brown", "Dr. Linda Martinez"],
-  "TX Medical Board": ["Dr. Sarah Miller"],
+  "CA Medical Board": ["Dr. John Smith", "Dr. Emily White", "Dr. Robert King", "Dr. Kevin Lee"],
+  "NY State Education Dept": ["Dr. Michael Brown", "Dr. Linda Martinez", "Dr. James Lee"],
+  "TX Medical Board": ["Dr. Sarah Miller", "Dr. Karen Hall"],
   "California DMV": ["Dr. David Wilson"],
   "Drug Enforcement Administration": ["Dr. Jessica Garcia"],
   "ECFMG (International)": ["Dr. Emily White"],
   "FCVS (FSMB)": ["Dr. John Smith", "Dr. Michael Brown"],
   "NPPES (CMS)": ["Dr. Robert King", "Dr. Linda Martinez"],
   "National Passport Info Center": ["Dr. Sarah Miller"],
-  "National Practitioner Data Bank": ["Dr. David Wilson", "Dr. Jessica Garcia"]
+  "National Practitioner Data Bank": ["Dr. David Wilson", "Dr. Jessica Garcia"],
+  "New York DMV": ["Dr. Steven Young"]
 };
 
 
