@@ -1,4 +1,5 @@
-import Link from 'next/link';
+'use client';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, FileUp, ListFilter } from 'lucide-react';
-import mockApi from '@/lib/mock-data';
+import mockApi, { type Application } from '@/lib/mock-data';
+import { useEffect, useState } from 'react';
 
 const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
@@ -20,8 +22,18 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
 }
 
 
-export default async function ApplicationReview() {
-  const applications = await mockApi.getApplications();
+export default function ApplicationReview() {
+  const router = useRouter();
+  const [applications, setApplications] = useState<Application[]>([]);
+  
+  useEffect(() => {
+    const data = mockApi.getApplications();
+    setApplications(data);
+  }, []);
+
+  const handleRowClick = (appId: string) => {
+    router.push(`/applications/review/${appId}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -85,13 +97,9 @@ export default async function ApplicationReview() {
                     </TableHeader>
                     <TableBody>
                         {applications.map((app) => (
-                            <TableRow key={app.id}>
-                                <TableCell>
-                                    <Button variant="link" asChild className="p-0 h-auto">
-                                        <Link href={`/applications/review/${app.id}`}>{app.id}</Link>
-                                    </Button>
-                                </TableCell>
-                                <TableCell className="font-medium">{app.name}</TableCell>
+                            <TableRow key={app.id} onClick={() => handleRowClick(app.id)} className="cursor-pointer">
+                                <TableCell className="font-medium">{app.id}</TableCell>
+                                <TableCell>{app.name}</TableCell>
                                 <TableCell>
                                     <Badge variant={statusVariant(app.status)}>{app.status}</Badge>
                                 </TableCell>
@@ -107,21 +115,19 @@ export default async function ApplicationReview() {
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                            <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                                                 <span className="sr-only">Open menu</span>
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuItem asChild>
-                                                <Link href={`/applications/review/${app.id}`}>View Details</Link>
-                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={() => handleRowClick(app.id)}>View Details</DropdownMenuItem>
                                             <DropdownMenuItem>Assign Analyst</DropdownMenuItem>
                                             <DropdownMenuItem>Change Status</DropdownMenuItem>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem asChild>
-                                                <Link href={`/credentialing/${app.id}`}>Proceed to Credentialing</Link>
+                                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/credentialing/${app.id}`)}}>
+                                                Proceed to Credentialing
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="text-destructive">Mark for Review</DropdownMenuItem>
                                         </DropdownMenuContent>

@@ -10,24 +10,52 @@ import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Search } from "lucide-react"
+import { Search, PlusCircle } from "lucide-react"
 import mockApi, { type Email } from '@/lib/mock-data';
+import { cn } from '@/lib/utils';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+
+const mockCalls = [
+    { id: 1, to: 'Dr. John Smith', date: '2024-07-28', duration: '5 min', summary: 'Discussed missing document.'},
+    { id: 2, to: 'CA Medical Board', date: '2024-07-27', duration: '12 min', summary: 'Verified license for E. White.'},
+];
+
+const mockMeetings = [
+    { id: 1, title: 'Review APP-003', with: 'Charlie Davis', date: new Date(new Date().setDate(new Date().getDate() + 2)), time: '10:00 AM' },
+    { id: 2, title: 'Credentialing Committee Sync', with: 'Team', date: new Date(new Date().setDate(new Date().getDate() + 5)), time: '2:00 PM' },
+];
+
+const mockReminders = [
+    { id: 1, title: 'Follow-up with Dr. Michael Brown on APP-003', dueDate: new Date(new Date().setDate(new Date().getDate() + 1)), completed: false },
+    { id: 2, title: 'Check status of TX DMV verification', dueDate: new Date(new Date().setDate(new Date().getDate() + 3)), completed: false },
+    { id: 3, title: 'Prepare Q3 report summary', dueDate: new Date(new Date().setDate(new Date().getDate() -1)), completed: true },
+]
 
 export default function CommunicationPage() {
     const [emails, setEmails] = useState<Email[]>([]);
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+    const [activeTab, setActiveTab] = useState('email');
+    const [date, setDate] = React.useState<Date | undefined>(new Date())
 
     useEffect(() => {
-        const fetchData = async () => {
-            const emailList = await mockApi.getEmails();
-            setEmails(emailList);
-            if(emailList.length > 0) {
-                const detailedEmail = await mockApi.getEmailById(emailList[0].id);
-                setSelectedEmail(detailedEmail || null);
-            }
-        };
-        fetchData();
-    }, []);
+        if (activeTab === 'email') {
+            const fetchData = async () => {
+                const emailList = await mockApi.getEmails();
+                setEmails(emailList);
+                if(emailList.length > 0) {
+                    const detailedEmail = await mockApi.getEmailById(emailList[0].id);
+                    setSelectedEmail(detailedEmail || null);
+                }
+            };
+            fetchData();
+        }
+    }, [activeTab]);
 
     const handleSelectEmail = async (emailId: number) => {
         const detailedEmail = await mockApi.getEmailById(emailId);
@@ -38,17 +66,21 @@ export default function CommunicationPage() {
     <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight font-headline">Communication Center</h1>
 
-        <Tabs defaultValue="email" className="w-full">
+        <Tabs defaultValue="email" className="w-full" onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-4">
                  {communicationTabs.map((tab) => (
-                    <TabsTrigger value={tab.value} key={tab.value} className="gap-2">
+                    <TabsTrigger 
+                        value={tab.value} 
+                        key={tab.value} 
+                        className={cn("gap-2", activeTab === tab.value && 'bg-primary text-primary-foreground')}
+                    >
                         <tab.icon className="h-4 w-4"/> {tab.label}
                     </TabsTrigger>
                  ))}
             </TabsList>
             <TabsContent value="email">
-                <div className="border rounded-lg">
-                <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
+                <Card>
+                <ResizablePanelGroup direction="horizontal" className="min-h-[600px] rounded-lg border">
                     <ResizablePanel defaultSize={30}>
                         <div className="p-4">
                             <div className="flex items-center gap-2">
@@ -124,18 +156,183 @@ export default function CommunicationPage() {
                         )}
                     </ResizablePanel>
                 </ResizablePanelGroup>
-                </div>
+                </Card>
             </TabsContent>
             <TabsContent value="call">
-                <p className="p-4 text-center text-muted-foreground">Call logging feature coming soon.</p>
+                <Card>
+                    <CardHeader className='flex flex-row justify-between items-center'>
+                        <div>
+                            <CardTitle>Call Log</CardTitle>
+                            <CardDescription>Log and review calls with providers and centers.</CardDescription>
+                        </div>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button><PlusCircle className='mr-2' /> Log New Call</Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Log a New Call</DialogTitle>
+                                </DialogHeader>
+                                <div className='space-y-4 py-4'>
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="call-to">Recipient</Label>
+                                        <Input id="call-to" placeholder="e.g., Dr. John Smith" />
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="call-duration">Duration (in minutes)</Label>
+                                        <Input id="call-duration" type="number" placeholder="e.g., 15" />
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="call-summary">Summary</Label>
+                                        <Textarea id="call-summary" placeholder="Briefly describe the call..." />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="submit">Save Log</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Recipient</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Duration</TableHead>
+                                    <TableHead>Summary</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {mockCalls.map(call => (
+                                    <TableRow key={call.id}>
+                                        <TableCell className='font-medium'>{call.to}</TableCell>
+                                        <TableCell>{call.date}</TableCell>
+                                        <TableCell>{call.duration}</TableCell>
+                                        <TableCell>{call.summary}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
             </TabsContent>
             <TabsContent value="meeting">
-                 <p className="p-4 text-center text-muted-foreground">Meeting scheduling feature coming soon.</p>
+                 <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+                    <div className='lg:col-span-2'>
+                        <Card>
+                            <CardContent className='p-2'>
+                                <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    className="rounded-md"
+                                />
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div className='lg:col-span-1'>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Upcoming Meetings</CardTitle>
+                                <CardDescription>Your scheduled meetings for the upcoming week.</CardDescription>
+                            </CardHeader>
+                            <CardContent className='space-y-4'>
+                                {mockMeetings.map(meeting => (
+                                    <div key={meeting.id} className='flex items-start gap-4'>
+                                        <div className='text-center rounded-md bg-muted px-2 py-1'>
+                                            <p className='text-xs'>{meeting.date.toLocaleString('default', { month: 'short' })}</p>
+                                            <p className='font-bold text-lg'>{meeting.date.getDate()}</p>
+                                        </div>
+                                        <div>
+                                            <p className='font-semibold'>{meeting.title}</p>
+                                            <p className='text-sm text-muted-foreground'>With: {meeting.with}</p>
+                                            <p className='text-sm text-muted-foreground'>Time: {meeting.time}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </CardContent>
+                            <CardFooter>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                         <Button className='w-full'><PlusCircle className='mr-2' /> Schedule Meeting</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Schedule a New Meeting</DialogTitle>
+                                        </DialogHeader>
+                                        <div className='space-y-4 py-4'>
+                                             <div className='space-y-2'>
+                                                <Label htmlFor="meet-title">Meeting Title</Label>
+                                                <Input id="meet-title" placeholder="e.g., Application Review" />
+                                            </div>
+                                            <div className='space-y-2'>
+                                                <Label htmlFor="meet-attendees">Attendees</Label>
+                                                <Input id="meet-attendees" placeholder="e.g., Dr. Smith, Jane Doe" />
+                                            </div>
+                                            <div className='space-y-2'>
+                                                <Label htmlFor="meet-date">Date & Time</Label>
+                                                <Input id="meet-date" type="datetime-local" />
+                                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button>Schedule</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            </CardFooter>
+                        </Card>
+                    </div>
+                 </div>
             </TabsContent>
              <TabsContent value="reminders">
-                 <p className="p-4 text-center text-muted-foreground">Reminders feature coming soon.</p>
+                <Card>
+                    <CardHeader className='flex flex-row justify-between items-center'>
+                        <div>
+                            <CardTitle>Reminders</CardTitle>
+                            <CardDescription>Manage your follow-ups and tasks.</CardDescription>
+                        </div>
+                         <Dialog>
+                            <DialogTrigger asChild>
+                                <Button><PlusCircle className='mr-2' /> Add Reminder</Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Add a New Reminder</DialogTitle>
+                                </DialogHeader>
+                                <div className='space-y-4 py-4'>
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="rem-title">Title</Label>
+                                        <Input id="rem-title" placeholder="e.g., Follow up with..." />
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label htmlFor="rem-date">Due Date</Label>
+                                        <Input id="rem-date" type="date" />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="submit">Save Reminder</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </CardHeader>
+                    <CardContent className='space-y-2'>
+                        {mockReminders.map(reminder => (
+                            <div key={reminder.id} className={cn('flex items-center gap-4 p-3 rounded-md', reminder.completed ? 'bg-muted/50' : 'bg-card border')}>
+                                <Checkbox checked={reminder.completed} className='h-5 w-5' />
+                                <div className='flex-1'>
+                                    <p className={cn('font-medium', reminder.completed && 'line-through text-muted-foreground')}>{reminder.title}</p>
+                                    <p className={cn('text-sm', reminder.completed ? 'text-muted-foreground' : 'text-primary')}>{reminder.dueDate.toLocaleDateString()}</p>
+                                </div>
+                                <Button variant="ghost" size="sm">Dismiss</Button>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
             </TabsContent>
         </Tabs>
     </div>
   );
 }
+
+    
