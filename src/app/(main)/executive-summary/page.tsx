@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,31 +6,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { kpiData, summaryTiles } from '@/lib/mock-data';
 import { KpiCard } from '@/components/kpi-card';
-import { StatusPieChart } from '@/components/charts/status-pie-chart';
+import { StatusDonutChart } from '@/components/charts/status-donut-chart';
 import { TimeToCredentialBarChart } from '@/components/charts/time-to-credential-bar-chart';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { List, ListItem } from '@tremor/react';
-import { Logo } from '@/components/icons/logo';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 export default function ExecutiveSummary() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
-  const [modalItems, setModalItems] = useState<string[]>([]);
+  const [modalItems, setModalItems] = useState<{ id: string; name: string; status: string; market: string; }[]>([]);
 
-  const handleViewClick = (title: string, items: string[]) => {
+  const handleViewClick = (title: string, items: { id: string; name: string; status: string; market: string; }[]) => {
     setModalTitle(title);
     setModalItems(items);
     setIsModalOpen(true);
   };
 
+  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+        case 'Completed': return 'default';
+        case 'Pending Review': return 'secondary';
+        case 'Needs Further Review': return 'destructive';
+        default: return 'outline';
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-        <div className='flex items-center gap-2'>
-            <Logo />
-            <h1 className="text-2xl font-bold tracking-tight font-headline text-black">Executive Summary</h1>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight font-headline">Executive Summary</h1>
         <div className="flex items-center gap-2 mt-4 md:mt-0">
           <Select defaultValue="all">
             <SelectTrigger className="w-[150px]">
@@ -86,7 +94,7 @@ export default function ExecutiveSummary() {
           <TimeToCredentialBarChart />
         </div>
         <div className="lg:col-span-3">
-            <StatusPieChart />
+            <StatusDonutChart />
         </div>
       </div>
       
@@ -112,21 +120,36 @@ export default function ExecutiveSummary() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
                 <DialogTitle>{modalTitle}</DialogTitle>
                 <DialogDescription>
-                    List of items that require your immediate attention.
+                    List of items that require your immediate attention. Click an item to view details.
                 </DialogDescription>
             </DialogHeader>
-            <div className="mt-4 max-h-[300px] overflow-y-auto">
-              <List>
-                {modalItems.map((item, index) => (
-                  <ListItem key={index}>
-                    <span>{item}</span>
-                  </ListItem>
-                ))}
-              </List>
+            <div className="mt-4 max-h-[400px] overflow-y-auto">
+              <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>App ID</TableHead>
+                        <TableHead>Provider Name</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Market</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {modalItems.map((item) => (
+                        <TableRow key={item.id} className="cursor-pointer hover:bg-muted" onClick={() => setIsModalOpen(false)}>
+                            <TableCell>
+                                <Link href={`/applications/review/${item.id}`} className="text-primary hover:underline">{item.id}</Link>
+                            </TableCell>
+                            <TableCell>{item.name}</TableCell>
+                            <TableCell><Badge variant={getStatusVariant(item.status)}>{item.status}</Badge></TableCell>
+                            <TableCell>{item.market}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
             </div>
             <DialogFooter>
                 <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Close</Button>

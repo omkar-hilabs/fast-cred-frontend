@@ -210,10 +210,10 @@ export const barChartData = [
 ];
 
 export const summaryTiles = [
-  { title: 'Providers Awaiting Action', value: '78', icon: Users, items: ['APP-005: Dr. David Wilson', 'APP-007: Dr. Robert King', 'APP-008: Dr. Linda Martinez', 'APP-010: Dr. Karen Hall', 'APP-012: Dr. James Lee'] },
-  { title: 'Payers Awaiting Action', value: '32', icon: HandPlatter, items: ['Aetna', 'Cigna', 'United Healthcare', 'Humana'] },
-  { title: 'Verification Centres Awaiting Action', value: '12', icon: Building, items: ['CA Medical Board', 'NY State Education Dept', 'TX Medical Board', 'ECFMG (International)', 'FCVS (FSMB)'] },
-  { title: 'Follow-up / Reminder Pending', value: '45', icon: Mail, items: ['Follow up with Dr. Michael Brown', 'Reminder to TX DMV', 'Follow up with Dr. Sarah Miller'] },
+  { title: 'Providers Awaiting Action', value: '78', icon: Users, items: applications.filter(a => a.status === 'Needs Further Review' || a.status === 'Pending Review').map(a => ({ id: a.id, name: a.name, status: a.status, market: a.market })) },
+  { title: 'Payers Awaiting Action', value: '32', icon: HandPlatter, items: [] },
+  { title: 'Verification Centres Awaiting Action', value: '12', icon: Building, items: [] },
+  { title: 'Follow-up / Reminder Pending', value: '45', icon: Mail, items: [] },
 ];
 
 // Simulate API calls

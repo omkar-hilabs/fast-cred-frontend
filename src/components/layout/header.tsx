@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -138,7 +139,6 @@ export default function AppHeader() {
         </SheetContent>
       </Sheet>
       <div className="flex items-center gap-4">
-        {pathname === '/executive-summary' && <Logo />}
         <Breadcrumb className="hidden md:flex">
             <BreadcrumbList>
             {breadcrumbs.map((crumb, index) => (
