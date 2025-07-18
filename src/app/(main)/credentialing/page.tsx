@@ -18,7 +18,7 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
 }
 
 export default async function CredentialingPage() {
-  const allApps: Application[] = mockApi.getApplications();
+  const allApps: Application[] = await mockApi.getApplications();
   const credentialingApps = allApps.filter(app => ['In-Progress', 'Needs Further Review', 'Completed', 'Pending Review'].includes(app.status));
   
   const getStatusCounts = (apps: Application[]) => {

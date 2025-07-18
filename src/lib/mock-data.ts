@@ -265,58 +265,57 @@ export const summaryTiles = [
 
 // Simulate API calls
 const api = {
-    getApplications: (): Application[] => {
-        return applications;
+    getApplications: async (): Promise<Application[]> => {
+        return new Promise(resolve => resolve(applications));
     },
-    getApplicationById: (id: string): Application | undefined => {
-        return applications.find(app => app.id === id);
+    getApplicationById: async (id: string): Promise<Application | undefined> => {
+        return new Promise(resolve => resolve(applications.find(app => app.id === id)));
     },
-    getAiIssues: (appId: string): AiIssue[] => {
-        return aiIssues[appId] || aiIssues['default'];
+    getAiIssues: async (appId: string): Promise<AiIssue[]> => {
+        return new Promise(resolve => resolve(aiIssues[appId] || aiIssues['default']));
     },
-    getTimeline: (appId: string): TimelineEvent[] => {
-        return timelines[appId] || timelines['default'];
+    getTimeline: async (appId: string): Promise<TimelineEvent[]> => {
+        return new Promise(resolve => resolve(timelines[appId] || timelines['default']));
     },
-    getDocumentsStatus: (appId: string): DocumentStatus[] => {
-        return documentsStatus[appId] || documentsStatus['default'];
+    getDocumentsStatus: async (appId: string): Promise<DocumentStatus[]> => {
+        return new Promise(resolve => resolve(documentsStatus[appId] || documentsStatus['default']));
     },
-    getVerificationCentres: (): Record<string, VerificationCentre[]> => {
-        return verificationCentres;
+    getVerificationCentres: async (): Promise<Record<string, VerificationCentre[]>> => {
+        return new Promise(resolve => resolve(verificationCentres));
     },
-    getVerificationCentreByName: (name: string): VerificationCentre | undefined => {
-        return allVerificationCentresList.find(c => c.name === name);
+    getVerificationCentreByName: async (name: string): Promise<VerificationCentre | undefined> => {
+        return new Promise(resolve => resolve(allVerificationCentresList.find(c => c.name === name)));
     },
-    getVerificationCentreForDoc: (docName: string): VerificationCentre | undefined => {
+    getVerificationCentreForDoc: async (docName: string): Promise<VerificationCentre | undefined> => {
         const centers = (verificationCentres as any)[docName];
-        return centers ? centers[0] : undefined;
+        return new Promise(resolve => resolve(centers ? centers[0] : undefined));
     },
-    getProvidersByOrg: (): Record<string, string[]> => {
-        return providersByOrg;
+    getProvidersByOrg: async (): Promise<Record<string, string[]>> => {
+        return new Promise(resolve => resolve(providersByOrg));
     },
-    getUnverifiedProvidersForOrg: (orgName: string): Application[] => {
+    getUnverifiedProvidersForOrg: async (orgName: string): Promise<Application[]> => {
         const providerNames = providersByOrg[orgName] || [];
-        return applications.filter(app => providerNames.includes(app.name) && app.status !== 'Completed' && app.status !== 'Closed');
+        return new Promise(resolve => resolve(applications.filter(app => providerNames.includes(app.name) && app.status !== 'Completed' && app.status !== 'Closed')));
     },
-    getEmails: (): Email[] => {
-        return emails;
+    getEmails: async (): Promise<Email[]> => {
+        return new Promise(resolve => resolve(emails));
     },
-    getEmailById: (id: number): Email | undefined => {
-        // a little more dynamic to show different selected emails
+    getEmailById: async (id: number): Promise<Email | undefined> => {
         const email = emails.find(e => e.id === id);
         if (email) {
-            return {
+            return new Promise(resolve => resolve({
                 ...selectedEmail,
                 id: email.id,
                 from: email.from,
                 subject: email.subject,
                 date: email.date,
                 unread: email.unread
-            };
+            }));
         }
-        return selectedEmail; 
+        return new Promise(resolve => resolve(selectedEmail)); 
     },
-    getRecentReports: (): Report[] => {
-        return recentReports;
+    getRecentReports: async (): Promise<Report[]> => {
+        return new Promise(resolve => resolve(recentReports));
     }
 };
 

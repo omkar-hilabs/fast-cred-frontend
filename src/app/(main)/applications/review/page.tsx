@@ -27,8 +27,11 @@ export default function ApplicationReview() {
   const [applications, setApplications] = useState<Application[]>([]);
   
   useEffect(() => {
-    const data = mockApi.getApplications();
-    setApplications(data);
+    async function loadData() {
+        const data = await mockApi.getApplications();
+        setApplications(data);
+    }
+    loadData();
   }, []);
 
   const handleRowClick = (appId: string) => {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -44,26 +45,44 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if(params.id) {
-        const docData = mockApi.getDocumentsStatus(params.id);
-        setDocuments(docData);
-        if(docData.length > 0) {
-            setSelectedDocument(docData[0]);
+    async function loadInitialData() {
+        if(params.id) {
+            setLoading(true);
+            const docData = await mockApi.getDocumentsStatus(params.id);
+            setDocuments(docData);
+            if(docData.length > 0) {
+                setSelectedDocument(docData[0]);
+            }
+            setLoading(false);
         }
-        setLoading(false);
     }
+    loadInitialData();
   }, [params.id]);
 
   useEffect(() => {
-    if (selectedDocument) {
-        const vcData = mockApi.getVerificationCentreForDoc(selectedDocument.name);
-        setVerificationCentre(vcData || null);
+    async function loadVerificationCenter() {
+        if (selectedDocument) {
+            const vcData = await mockApi.getVerificationCentreForDoc(selectedDocument.name);
+            setVerificationCentre(vcData || null);
+        }
     }
+    loadVerificationCenter();
   }, [selectedDocument]);
 
 
-  if (loading || !selectedDocument) {
+  if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!selectedDocument) {
+    return (
+        <div className="space-y-6">
+            <Button asChild variant="ghost" className="mb-4 px-0">
+                <Link href="/credentialing"><ArrowLeft className="mr-2 h-4 w-4"/> Back to Credentialing</Link>
+            </Button>
+            <p>No documents found for this application.</p>
+        </div>
+    )
   }
 
   return (
