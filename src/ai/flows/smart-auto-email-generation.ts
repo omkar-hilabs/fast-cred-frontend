@@ -40,7 +40,6 @@ export async function smartAutoEmailGeneration(
 ): Promise<SmartAutoEmailGenerationOutput> {
   // return smartAutoEmailGenerationFlow(input);
   console.log('Simulating smartAutoEmailGeneration with input:', input);
-  await new Promise(resolve => setTimeout(resolve, 500));
 
   let draft = `Dear ${input.recipientName},\n\n`;
   draft += `${input.context}\n\n`;

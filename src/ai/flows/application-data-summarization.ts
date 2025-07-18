@@ -35,7 +35,6 @@ export async function summarizeApplicationData(
 ): Promise<SummarizeApplicationDataOutput> {
   // return summarizeApplicationDataFlow(input);
   console.log('Simulating summarizeApplicationData with input:', input);
-  await new Promise(resolve => setTimeout(resolve, 500));
   return {
     summary: 'The application has three detected issues: a ZIP code mismatch, an unverified NPI, and a 3-month gap in employment history. Analysts have started the review and assigned it for verification.'
   };

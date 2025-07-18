@@ -42,7 +42,6 @@ export async function generateApproveModifyRejectSuggestions(
 ): Promise<ApproveModifyRejectSuggestionsOutput> {
   // return generateApproveModifyRejectSuggestionsFlow(input);
   console.log('Simulating generateApproveModifyRejectSuggestions with input:', input);
-  await new Promise(resolve => setTimeout(resolve, 500));
 
   if (input.fieldData.includes('90210')) {
       return {
