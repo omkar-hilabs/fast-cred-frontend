@@ -89,7 +89,7 @@ export default function ApplicationDetailsPage({ params }: { params: { id: strin
   return (
     <div className="space-y-6">
        <Button asChild variant="ghost" className="px-0">
-          <Link href="/applications/review"><ArrowLeft className="mr-2 h-4 w-4"/> Back to Applications</Link>
+          <Link href="/applications"><ArrowLeft className="mr-2 h-4 w-4"/> Back to Applications</Link>
         </Button>
       <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
