@@ -1,5 +1,4 @@
 
-'use client';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -18,7 +17,7 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
     }
 }
 
-export default function CredentialingPage() {
+export default async function CredentialingPage() {
   const allApps: Application[] = mockApi.getApplications();
   const credentialingApps = allApps.filter(app => ['In-Progress', 'Needs Further Review', 'Completed', 'Pending Review'].includes(app.status));
   
@@ -97,7 +96,7 @@ export default function CredentialingPage() {
             </TableHeader>
             <TableBody>
               {credentialingApps.map((app) => (
-                <TableRow key={app.id} className="cursor-pointer" onClick={() => window.location.href=`/credentialing/${app.id}`}>
+                <TableRow key={app.id}>
                   <TableCell>{app.providerId}</TableCell>
                   <TableCell className="font-medium">{app.name}</TableCell>
                   <TableCell>{app.id}</TableCell>
