@@ -17,6 +17,9 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { smartAutoEmailGeneration } from '@/ai/flows/smart-auto-email-generation';
 import { generateApproveModifyRejectSuggestions } from '@/ai/flows/generate-approve-modify-reject-suggestions';
 import { summarizeApplicationData } from '@/ai/flows/application-data-summarization';
+import axios from 'axios';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function ApplicationDetailsPage({ params }: { params: { id: string } }) {
   const [application, setApplication] = useState<Application | null>(null);
@@ -30,23 +33,26 @@ export default function ApplicationDetailsPage({ params }: { params: { id: strin
   const [suggestion, setSuggestion] = useState<{ suggestion: string, reasoning: string, confidenceScore: number} | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    console.log("params.id -> ", params.id)
+    async function loadData() {
       setLoading(true);
-      const appData = await mockApi.getApplicationById(params.id);
-      if (appData) {
-        setApplication(appData);
-        const issuesData = await mockApi.getAiIssues(appData.id);
-        const timelineData = await mockApi.getTimeline(appData.id);
-        setAiIssues(issuesData);
-        setTimeline(timelineData);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/applications/${params.id}`);
+        setApplication(response.data);
+        // const issuesData = await mockApi.getAiIssues(appData.id);
+        // const timelineData = await mockApi.getTimeline(appData.id);
+        // setAiIssues(issuesData);
+        // setTimeline(timelineData);
 
-        const summaryResult = await summarizeApplicationData({ applicationDetails: JSON.stringify(appData), analystComments: JSON.stringify(timelineData) });
-        setSummary(summaryResult.summary);
+        // const summaryResult = await summarizeApplicationData({ applicationDetails: JSON.stringify(appData), analystComments: JSON.stringify(timelineData) });
+        // setSummary(summaryResult.summary);
+      } catch (error) {
+        console.error('Failed to fetch applications:', error);
       }
       setLoading(false);
-    };
+    }
 
-    fetchData();
+    loadData();
   }, [params.id]);
 
   const handleGenerateEmail = async () => {

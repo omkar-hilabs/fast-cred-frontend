@@ -8,13 +8,14 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, FileUp, ListFilter } from 'lucide-react';
-import mockApi, { type Application } from '@/lib/mock-data';
 import { useEffect, useState } from 'react';
 import ApplicationIntake from '@/components/custom/ApplicationIntake';
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import axios from 'axios';
 
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
         case 'Completed': return 'default';
@@ -28,14 +29,19 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
 
 export default function ApplicationsPage() {
   const router = useRouter();
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState([]);
   const [showIntakeModal, setShowIntakeModal] = useState(false);
   
   useEffect(() => {
     async function loadData() {
-        const data = await mockApi.getApplications();
-        setApplications(data);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/applications`);
+        setApplications(response.data);
+      } catch (error) {
+        console.error('Failed to fetch applications:', error);
+      }
     }
+  
     loadData();
   }, []);
 

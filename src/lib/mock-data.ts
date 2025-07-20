@@ -74,22 +74,6 @@ export interface Report {
     type: 'PDF' | 'Excel';
 }
 
-
-const applications: Application[] = [
-    { id: 'APP-001', providerId: 'P12345', name: 'Dr. John Smith', status: 'Completed', progress: 100, assignee: 'Alice Johnson', source: 'Manual Entry', market: 'National', specialty: 'Cardiology', address: '123 Health St, Suite 100, Medville, CA, 90210', npi: '1234567890' },
-    { id: 'APP-002', providerId: 'P54321', name: 'Dr. Emily White', status: 'In-Progress', progress: 75, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'California', specialty: 'Dermatology', address: '456 Skin Ave, Suite 200, Beverly Hills, CA, 90210', npi: '0987654321' },
-    { id: 'APP-003', providerId: 'P67890', name: 'Dr. Michael Brown', status: 'In-Progress', progress: 50, assignee: 'Charlie Davis', source: 'Email Parsing', market: 'New York', specialty: 'Neurology', address: '789 Brain Blvd, Thinktown, NY, 10001', npi: '1122334455' },
-    { id: 'APP-004', providerId: 'P11223', name: 'Dr. Sarah Miller', status: 'Closed', progress: 100, assignee: 'Alice Johnson', source: 'Availity API', market: 'Texas', specialty: 'Pediatrics', address: '101 Child Way, Kidston, TX, 75001', npi: '6677889900' },
-    { id: 'APP-005', providerId: 'P44556', name: 'Dr. David Wilson', status: 'Needs Further Review', progress: 90, assignee: 'Unassigned', source: 'Manual Entry', market: 'Florida', specialty: 'Orthopedics', address: '202 Bone Ln, Jointsville, FL, 33101', npi: '1231231234' },
-    { id: 'APP-006', providerId: 'P77889', name: 'Dr. Jessica Garcia', status: 'Completed', progress: 100, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'National', specialty: 'Oncology', address: '303 Hope Dr, Cure City, WA, 98101', npi: '4564564567' },
-    { id: 'APP-007', providerId: 'P99999', name: 'Dr. Robert King', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'California', specialty: 'Cardiology', address: '1 Heart Way, Loveland, CA, 90210', npi: '9998887776' },
-    { id: 'APP-008', providerId: 'P88888', name: 'Dr. Linda Martinez', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'New York', specialty: 'Neurology', address: '2 Nerve St, Big Apple, NY, 10001', npi: '8887776665' },
-    { id: 'APP-009', providerId: 'P10101', name: 'Dr. Kevin Lee', status: 'In-Progress', progress: 60, assignee: 'Charlie Davis', source: 'Manual Entry', market: 'California', specialty: 'Dermatology', address: '101 Skin Ave, Beverly Hills, CA, 90210', npi: '1010101010' },
-    { id: 'APP-010', providerId: 'P20202', name: 'Dr. Karen Hall', status: 'Pending Review', progress: 20, assignee: 'Unassigned', source: 'Manual Entry', market: 'Texas', specialty: 'Pediatrics', address: '202 Child Way, Kidston, TX, 75001', npi: '2020202020' },
-    { id: 'APP-011', providerId: 'P30303', name: 'Dr. Steven Young', status: 'In-Progress', progress: 80, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'Florida', specialty: 'Orthopedics', address: '303 Bone Ln, Jointsville, FL, 33101', npi: '3030303030' },
-    { id: 'APP-012', providerId: 'P40404', name: 'Dr. James Lee', status: 'Needs Further Review', progress: 95, assignee: 'Alice Johnson', source: 'Email Parsing', market: 'New York', specialty: 'Cardiology', address: '404 Heart Way, Loveland, NY, 10001', npi: '4040404040' },
-];
-
 const aiIssues: Record<string, AiIssue[]> = {
     'APP-002': [
       { field: 'Address', issue: 'ZIP code mismatch with state.', confidence: 0.95, value: '90210', reasoning: 'The ZIP code 90210 belongs to California, which matches the provided state. However, cross-referencing with USPS database suggests a potential discrepancy in the street address format.' },

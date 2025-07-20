@@ -16,10 +16,11 @@ import { useEffect } from 'react';
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const steps = ["Provider Info", "Education & Training", "Work History", "Licenses & Certs", "Additional Details", "Review"];
+const steps = ["Provider Info", "Education & Training", "Work History", "Licenses & Certs", "Additional Details", "Review", "Submitted"];
 const emptyFormData = {
     providerId: "",
     providerName: "",
+    providerLastName:"",
     npi: "",
     specialty: "",
     address: "",
@@ -92,15 +93,13 @@ export default function ManualEntryForm() {
     if (!files?.[0]) return;
   
     const file = files[0];
-    const fileType = id.replace("-upload-id", ""); // e.g., 'degree-upload'
+    const fileType = id.replace("-upload-id", ""); // e.g., 'degree'
     
     const formDataToSend = new FormData();
     formDataToSend.append("formId", formId); // assuming formId is in scope
     formDataToSend.append("fileType", fileType);
     formDataToSend.append("file", file);
-
-    console.log("Uploading file:", formDataToSend);
-  
+    
     try {
       const res = await axios.post(`${API_BASE_URL}/api/forms/upload-file`, formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -141,14 +140,29 @@ export default function ManualEntryForm() {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`${API_BASE_URL}/api/forms/submit-form`, {
-        formId,
-        typeForm: 'manual',
-        data: formData,
+      const response = await axios.post(`${API_BASE_URL}/api/applications`, {
+        providerId: formData.providerId,
+        formId: formId,
+        name: formData.providerName,
+        providerLastName: formData.providerLastName,
+        npi: formData.npi,
+        specialty: formData.specialty,
+        address: formData.address,
+        source: "Manual Entry",
+        status:"New",
+        market:"CA",
+        assignee:"Barry Allen",
+        progress: 0,
       });
-      toast({ title: "Submitted!", description: "Your application has been submitted." });
+      
+      handleNext()
+
     } catch (error) {
-      toast({ title: "Error", description: "Submission failed." });
+      console.error("Submission error:", error);
+      toast({
+        title: "Error",
+        description: "Submission failed.",
+      });
     }
   };
 
@@ -215,16 +229,18 @@ export default function ManualEntryForm() {
       </CardHeader>
       <CardContent>
         {currentStep === 0 && (
-            
-            
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="providerId">Provider ID</Label>
               <Input id="providerId" value={formData.providerId || ''} onChange={handleChange} placeholder="e.g., P12345" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="providerName">Name</Label>
-              <Input id="providerName" value={formData.providerName || ''} onChange={handleChange} placeholder="e.g., Dr. John Smith" />
+              <Label htmlFor="providerName">First Name</Label>
+              <Input id="providerName" value={formData.providerName || ''} onChange={handleChange} placeholder="e.g., John" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="providerLastName">Last Name</Label>
+              <Input id="providerLastName" value={formData.providerLastName || ''} onChange={handleChange} placeholder="e.g., Smith" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="npi">NPI</Label>
@@ -282,10 +298,17 @@ export default function ManualEntryForm() {
                     <Input id="training-type" value={formData['training-type'] || ''} onChange={handleChange} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="training-upload">Upload Certificate</Label>
-                    <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="training-upload" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                    <Label htmlFor="training-upload-id">Upload Certificate</Label>
+                    <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="training-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                    {Object.values(uploadFileData).find(file => file.fileType === 'training')?.filename && (
+                      <p className="text-sm text-muted-foreground">
+                        Selected: {
+                          Object.values(uploadFileData).find(file => file.fileType === 'training')?.filename
+                        }
+                      </p>
+                    )}
                 </div>
-            </div>
+          </div>
         )}
         {currentStep === 2 && (
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -306,8 +329,15 @@ export default function ManualEntryForm() {
                     <Input id="work-history-desc" value={formData['work-history-desc'] || ''} onChange={handleChange} />
                 </div>
                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="work-history-upload">Upload Additional Document</Label>
-                     <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="work-history-upload" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                    <Label htmlFor="work-history-upload-id">Upload Additional Document</Label>
+                    <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="work-history-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                    {Object.values(uploadFileData).find(file => file.fileType === 'work-history')?.filename && (
+                      <p className="text-sm text-muted-foreground">
+                        Selected: {
+                          Object.values(uploadFileData).find(file => file.fileType === 'work-history')?.filename
+                        }
+                      </p>
+                    )}
                 </div>
              </div>
         )}
@@ -323,8 +353,15 @@ export default function ManualEntryForm() {
                         <Button variant="secondary" className="w-full">Verify via OTP <Send className="ml-2 h-4 w-4" /></Button>
                     </div>
                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="dl-upload">Upload Document</Label>
-                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="dl-upload" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        <Label htmlFor="dl-upload-id">Upload Document</Label>
+                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="dl-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        {Object.values(uploadFileData).find(file => file.fileType === 'dl')?.filename && (
+                          <p className="text-sm text-muted-foreground">
+                            Selected: {
+                              Object.values(uploadFileData).find(file => file.fileType === 'dl')?.filename
+                            }
+                          </p>
+                        )}
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border rounded-lg">
@@ -334,8 +371,15 @@ export default function ManualEntryForm() {
                         <Input id="ml-number" value={formData['ml-number'] || ''} onChange={handleChange} />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="ml-upload">Upload Document</Label>
-                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="ml-upload" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        <Label htmlFor="ml-upload-id">Upload Document</Label>
+                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="ml-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        {Object.values(uploadFileData).find(file => file.fileType === 'ml')?.filename && (
+                          <p className="text-sm text-muted-foreground">
+                            Selected: {
+                              Object.values(uploadFileData).find(file => file.fileType === 'ml')?.filename
+                            }
+                          </p>
+                        )}
                     </div>
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border rounded-lg">
@@ -345,8 +389,15 @@ export default function ManualEntryForm() {
                         <Input id="other-name" value={formData['other-name'] || ''} onChange={handleChange} />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="other-upload">Upload Document</Label>
-                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="other-upload" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        <Label htmlFor="other-upload-id">Upload Document</Label>
+                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="other-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        {Object.values(uploadFileData).find(file => file.fileType === 'other')?.filename && (
+                          <p className="text-sm text-muted-foreground">
+                            Selected: {
+                              Object.values(uploadFileData).find(file => file.fileType === 'other')?.filename
+                            }
+                          </p>
+                        )}
                     </div>
                 </div>
             </div>
@@ -356,8 +407,15 @@ export default function ManualEntryForm() {
                  <div className="grid grid-cols-1 gap-6 p-4 border rounded-lg">
                     <h3 className="font-medium text-lg">Malpractice History</h3>
                     <div className="space-y-2">
-                        <Label htmlFor="malpractice-upload">Upload Malpractice History Proof</Label>
-                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="malpractice-upload" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        <Label htmlFor="malpractice-upload-id">Upload Malpractice History Proof</Label>
+                        <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="malpractice-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                        {Object.values(uploadFileData).find(file => file.fileType === 'malpractice')?.filename && (
+                          <p className="text-sm text-muted-foreground">
+                            Selected: {
+                              Object.values(uploadFileData).find(file => file.fileType === 'malpractice')?.filename
+                            }
+                          </p>
+                        )}
                     </div>
                 </div>
                 <div className="grid grid-cols-1 gap-6 p-4 border rounded-lg">
@@ -388,18 +446,27 @@ export default function ManualEntryForm() {
                 </Button>
             </div>
         )}
+        {currentStep === 6 && (
+            <div className="text-center p-8 bg-muted rounded-lg">
+              <h2 className="text-2xl font-bold text-green-600 mb-4">Submitted Successfully!</h2>
+              <p className="text-muted-foreground mb-4">
+                Your application has been submitted. We'll get back to you shortly.
+              </p>
+              <Check className="h-12 w-12 text-green-500 mx-auto" />
+            </div>
+        )}
       </CardContent>
-      <CardFooter>
+      {currentStep != 6 && <CardFooter>
         <div className="flex justify-between w-full">
           <div>
             {currentStep > 0 && <Button variant="outline" onClick={handleBack}>Back</Button>}
           </div>
           <div className="flex gap-2">
             <Button variant="secondary" onClick={handleSave}>Save</Button>
-            {currentStep < steps.length - 1 && <Button onClick={handleNext}>Next Step <ArrowRight className="ml-2 h-4 w-4" /></Button>}
+            {currentStep < steps.length - 2 && <Button onClick={handleNext}>Next Step <ArrowRight className="ml-2 h-4 w-4" /></Button>}
           </div>
         </div>
-      </CardFooter>
+      </CardFooter> }
     </Card>
   );
 };
