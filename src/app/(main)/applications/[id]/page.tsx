@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,7 +22,12 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export default function ApplicationDetailsPage({ params }: { params: { id: string } }) {
+export default function ApplicationDetailsPage() {
+
+  const params = useParams(); // 👈 Unwrap the params properly
+  const id = params?.id as string;
+
+
   const [application, setApplication] = useState<Application | null>(null);
   const [aiIssues, setAiIssues] = useState<AiIssue[]>([]);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
@@ -33,15 +39,16 @@ export default function ApplicationDetailsPage({ params }: { params: { id: strin
   const [suggestion, setSuggestion] = useState<{ suggestion: string, reasoning: string, confidenceScore: number} | null>(null);
 
   useEffect(() => {
-    console.log("params.id -> ", params.id)
     async function loadData() {
       setLoading(true);
       try {
         const response = await axios.get(`${API_BASE_URL}/api/applications/${params.id}`);
         setApplication(response.data);
-        // const issuesData = await mockApi.getAiIssues(appData.id);
+
+        const issuesData = await axios.get(`${API_BASE_URL}/api/applications/aiissues/${params.id}`);
+        setAiIssues(issuesData.data.issues);
+        
         // const timelineData = await mockApi.getTimeline(appData.id);
-        // setAiIssues(issuesData);
         // setTimeline(timelineData);
 
         // const summaryResult = await summarizeApplicationData({ applicationDetails: JSON.stringify(appData), analystComments: JSON.stringify(timelineData) });
