@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,21 +43,26 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
   const [selectedDocument, setSelectedDocument] = useState<DocumentStatus | null>(null);
   const [verificationCentre, setVerificationCentre] = useState<VerificationCentre | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const documentName = selectedDocument?.name.split('/')[0];
+  console.log(documentName, 'documentName');
+  const imagePath = `/images/${documentName}.jpg`;
+  const { id } = use(params);
   useEffect(() => {
-    async function loadInitialData() {
-        if(params.id) {
-            setLoading(true);
-            const docData = await mockApi.getDocumentsStatus(params.id);
-            setDocuments(docData);
-            if(docData.length > 0) {
-                setSelectedDocument(docData[0]);
-            }
-            setLoading(false);
-        }
+  async function loadInitialData() {
+    if (id) {
+      setLoading(true);
+      const docData = await mockApi.getDocumentsStatus(id);
+      console.log(docData, 'docData');
+      setDocuments(docData);
+      if (docData.length > 0) {
+        setSelectedDocument(docData[0]);
+      }
+      setLoading(false);
     }
-    loadInitialData();
-  }, [params.id]);
+  }
+  loadInitialData();
+}, [id]);
+
 
   useEffect(() => {
     async function loadVerificationCenter() {
@@ -91,7 +96,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
         <Button asChild variant="ghost" className="mb-4 px-0">
           <Link href="/credentialing"><ArrowLeft className="mr-2 h-4 w-4"/> Back to Credentialing</Link>
         </Button>
-        <h1 className="text-2xl font-bold tracking-tight font-headline">Credentialing Workflow for {params.id}</h1>
+        <h1 className="text-2xl font-bold tracking-tight font-headline">Credentialing Workflow for {id}</h1>
       </div>
         
         <Card>
@@ -139,7 +144,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                             <Upload className="h-5 w-5 text-primary" />
                             <h4>Original Upload</h4>
                         </div>
-                        <Image src={`https://placehold.co/600x400.png`} alt={`${selectedDocument.name} Scan`} width={600} height={400} className="rounded-md border aspect-[3/2] object-cover" data-ai-hint="medical license document" />
+                        <Image src={imagePath} alt={`${selectedDocument.name} Scan`} width={600} height={400} className="rounded-md border aspect-[3/2] object-cover" data-ai-hint="medical license document" />
                     </div>
 
                     <div className="flex-1 space-y-2 p-4 rounded-lg bg-slate-50 border border-slate-200">
