@@ -11,14 +11,18 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Edit, AlertCircle, Mail, FileText, User, Calendar, MessageSquare, ArrowRight, ArrowLeft } from 'lucide-react';
-import mockApi from '@/lib/mock-data';
+// import mockApi from '@/lib/mock-data';
 import type { Application, AiIssue, TimelineEvent } from '@/lib/mock-data';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { smartAutoEmailGeneration } from '@/ai/flows/smart-auto-email-generation';
-import { generateApproveModifyRejectSuggestions } from '@/ai/flows/generate-approve-modify-reject-suggestions';
-import { summarizeApplicationData } from '@/ai/flows/application-data-summarization';
+// import { generateApproveModifyRejectSuggestions } from '@/ai/flows/generate-approve-modify-reject-suggestions';
+// import { summarizeApplicationData } from '@/ai/flows/application-data-summarization';
 import axios from 'axios';
+import dynamic from "next/dynamic";
+
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -27,14 +31,14 @@ export default function ApplicationDetailsPage() {
   const params = useParams(); // 👈 Unwrap the params properly
   const id = params?.id as string;
 
-
+  
   const [application, setApplication] = useState<Application | null>(null);
   const [aiIssues, setAiIssues] = useState<AiIssue[]>([]);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
   const [emailDraft, setEmailDraft] = useState('');
-  const [summary, setSummary] = useState('');
+  const [summary, setSummary] = useState({});
   
   const [suggestion, setSuggestion] = useState<{ suggestion: string, reasoning: string, confidenceScore: number} | null>(null);
 
@@ -47,6 +51,9 @@ export default function ApplicationDetailsPage() {
 
         const issuesData = await axios.get(`${API_BASE_URL}/api/applications/aiissues/${params.id}`);
         setAiIssues(issuesData.data.issues);
+
+        const summaryData = await axios.get(`${API_BASE_URL}/api/applications/summary/${params.id}`);
+        setSummary(summaryData.data.summary);
         
         // const timelineData = await mockApi.getTimeline(appData.id);
         // setTimeline(timelineData);
@@ -66,9 +73,65 @@ export default function ApplicationDetailsPage() {
     if (!application) return;
     const context = `Regarding your application (ID: ${application.id}), we need to discuss the following issues: ${aiIssues.map(i => i.issue).join(', ')}.`;
     const result = await smartAutoEmailGeneration({ recipientType: 'provider', recipientName: application.name, subject: `Action Required for Application ${application.id}`, context });
-    setEmailDraft(result.emailDraft);
+    
+    const tempEmailDraft = result.emailDraft.replace('{{{applicationFormLink}}}', `http://localhost:9002/applications/intake/form?formId=${application.formId}`);
+    setEmailDraft(tempEmailDraft.replace(/\n/g, "<br>"));
     setIsEmailDialogOpen(true);
   }
+
+  const handleSendEmail = async () => {
+    if (!emailDraft || !application?.email) {
+      alert("Email content or recipient missing.");
+      return;
+    }
+  
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: application.email,
+          subject: `Regarding your application (ID: ${application.id})`,
+          body: emailDraft,
+        }),
+      });
+  
+      if (!res.ok) {
+        alert("Email sent successfully!");
+        setIsEmailDialogOpen(false);
+      }
+
+      const saveRes = await fetch(`${API_BASE_URL}/api/emails/save`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          application_id: application.id,
+          recipient_email: application.email,
+          subject: `Regarding your application (ID: ${application.id})`,
+          body: emailDraft,
+          status: "SENT",
+          sent_at: new Date().toISOString(),
+        }),
+      });
+  
+      if (!saveRes.ok) {
+        const err = await saveRes.json();
+        console.warn("Email sent, but failed to save to DB:", err.message);
+      }
+
+      alert("Email sent and saved successfully!");
+      setIsEmailDialogOpen(false);
+
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while sending the email.");
+    }
+  };
+  
   
   const handleSuggestion = async (issue: AiIssue) => {
     if (!application) return;
@@ -79,6 +142,27 @@ export default function ApplicationDetailsPage() {
     });
     setSuggestion(result);
   }
+
+  const handleDownload = async (type: String) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/documents/download?id=${params.id}&type=${type}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) throw new Error('Failed to download');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${type.toUpperCase()}_${params.id}.pdf`; // dynamic filename
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
 
 
   if (loading) {
@@ -122,9 +206,9 @@ export default function ApplicationDetailsPage() {
                       <Separator />
                        <h3 className="font-semibold text-lg font-headline">Submitted Documents</h3>
                        <div className="flex gap-4">
-                          <Button variant="outline"><FileText className="mr-2"/> Medical License</Button>
-                          <Button variant="outline"><FileText className="mr-2"/> CV/Resume</Button>
-                          <Button variant="outline"><FileText className="mr-2"/> Passport</Button>
+                          <Button variant="outline" onClick={() => handleDownload("npi")} ><FileText className="mr-2"/> NPI</Button>
+                          <Button variant="outline" onClick={() => handleDownload("dl")} ><FileText className="mr-2"/> Driving License</Button>
+                          <Button variant="outline" onClick={() => handleDownload("cv")} ><FileText className="mr-2"/> CV/Resume</Button>
                        </div>
                   </CardContent>
               </Card>
@@ -174,7 +258,22 @@ export default function ApplicationDetailsPage() {
                   <CardContent className="space-y-4">
                       <div>
                           <h4 className="font-semibold mb-2">AI Summary</h4>
-                          <p className="text-sm text-muted-foreground">{summary || 'Generating summary...'}</p>
+                          {summary ? (
+                            <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                            <li><strong>Docs Verified:</strong> {summary.docsSummary}</li>
+                            <li><strong>Emails:</strong> {summary.emailSummary}</li>
+                            <li>
+                              <strong>Next Action:</strong>
+                              <ul className="list-disc pl-5 space-y-1">
+                                {summary.nextActions.map((action, idx) => (
+                                  <li key={idx}>{action}</li>
+                                ))}
+                              </ul>
+                            </li>
+                          </ul>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No summary found.</p>
+                          )}
                       </div>
                        <Separator />
                        <div className="space-y-2">
@@ -227,15 +326,11 @@ export default function ApplicationDetailsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Textarea
-              rows={15}
-              value={emailDraft}
-              onChange={(e) => setEmailDraft(e.target.value)}
-            />
+            <ReactQuill theme="snow" value={emailDraft}/>
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => setIsEmailDialogOpen(false)}>Cancel</Button>
-            <Button type="submit">Send Email</Button>
+            <Button type="button" onClick={handleSendEmail}>Send Email</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

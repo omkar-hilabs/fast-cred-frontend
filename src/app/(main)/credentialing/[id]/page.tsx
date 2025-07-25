@@ -13,6 +13,11 @@ import { CheckCircle, Clock, AlertTriangle, FileCheck2, FileClock, FileX2, Uploa
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import mockApi, { type DocumentStatus, type VerificationCentre } from '@/lib/mock-data';
+import axios from 'axios';
+import { useToast } from '@/hooks/use-toast';
+
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const getDocumentIcon = (status: DocumentStatus['status']) => {
     switch (status) {
@@ -20,8 +25,12 @@ const getDocumentIcon = (status: DocumentStatus['status']) => {
             return { icon: FileCheck2, color: 'text-green-500' };
         case 'Pending':
             return { icon: FileClock, color: 'text-yellow-500' };
+        case 'New':
+            return { icon: FileClock, color: 'text-yellow-500' };
         case 'Flagged':
             return { icon: FileX2, color: 'text-red-500' };
+        default:
+            return { icon: FileClock, color: 'text-yellow-500'};
     }
 };
 
@@ -43,31 +52,68 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
   const [selectedDocument, setSelectedDocument] = useState<DocumentStatus | null>(null);
   const [verificationCentre, setVerificationCentre] = useState<VerificationCentre | null>(null);
   const [loading, setLoading] = useState(true);
-  const documentName = selectedDocument?.name.split('/')[0];
-  console.log(documentName, 'documentName');
-  const imagePath = `/images/${documentName}.jpg`;
+
+  const documentType = selectedDocument?.fileType.split('/')[0];
+  const imagePath = `/images/${documentType}.jpg`;
   const { id } = use(params);
+
+  const { toast } = useToast();
+
+  const [formData, setFormData] = useState<any>({});
+
   useEffect(() => {
-  async function loadInitialData() {
-    if (id) {
-      setLoading(true);
-      const docData = await mockApi.getDocumentsStatus(id);
-      console.log(docData, 'docData');
-      setDocuments(docData);
-      if (docData.length > 0) {
-        setSelectedDocument(docData[0]);
-      }
-      setLoading(false);
-    }
-  }
-  loadInitialData();
+    const fetchDocUploadNameData = async (uploadIds:any) => {
+        if (!id) return;
+
+        try {
+            const res = await axios.get(`${API_BASE_URL}/api/forms/upload-info`, {
+                params: { 'appId':id, 'formId':'', 'uploadIds':uploadIds.join(',')},
+            });
+        
+            const docData = Object.values(res.data?.files);
+            console.log(docData, 'docData');
+            setDocuments(docData)
+            if (docData.length > 0) {
+                setSelectedDocument(docData[0]);
+              }
+              setLoading(false);
+        } catch (error) {
+            console.error("Error fetching upload docs info:", error);
+            toast({ title: "Error", description: "Failed to load upload docs info" });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchFormData = async () => {
+        if (!id) return;
+
+        try {
+            const res = await axios.get(`${API_BASE_URL}/api/forms/`, {
+                params: { 'appId':id, 'formId':'' },
+            });
+            setFormData(res.data);
+
+            const uploadIds = Object.entries(res.data)
+            .filter(([key, _]) => key.endsWith('-upload-id'))
+            .map(([_, value]) => value);
+
+            fetchDocUploadNameData(uploadIds);
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to load form data." });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchFormData();
 }, [id]);
 
 
   useEffect(() => {
     async function loadVerificationCenter() {
         if (selectedDocument) {
-            const vcData = await mockApi.getVerificationCentreForDoc(selectedDocument.name);
+            const vcData = await mockApi.getVerificationCentreForDoc(selectedDocument.fileType);
             setVerificationCentre(vcData || null);
         }
     }
@@ -110,16 +156,16 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                         const { icon: Icon, color } = getDocumentIcon(doc.status);
                         return (
                         <button 
-                            key={doc.name}
+                            key={doc.fileType}
                             onClick={() => setSelectedDocument(doc)}
                             className={cn(
                                 "flex-1 min-w-[200px] flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all",
-                                selectedDocument.name === doc.name ? 'border-primary bg-accent' : 'bg-card hover:bg-accent/50'
+                                selectedDocument.fileType === doc.fileType ? 'border-primary bg-accent' : 'bg-card hover:bg-accent/50'
                             )}
                         >
                             <div className="flex items-center gap-3">
                                 <Icon className={`h-6 w-6 ${color}`} />
-                                <span className="text-base font-semibold">{doc.name}</span>
+                                <span className="text-base font-semibold">{doc.fileType}</span>
                             </div>
                             <div className="w-full mt-2">
                                 <Progress value={doc.progress} />
@@ -134,7 +180,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
 
         <Card>
             <CardHeader>
-                <CardTitle>Verification Progress for: <span className="text-primary">{selectedDocument.name}</span></CardTitle>
+                <CardTitle>Verification Progress for: <span className="text-primary">{selectedDocument.fileType}</span></CardTitle>
                 <CardDescription>Details from each stage of the verification pipeline.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -144,7 +190,10 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                             <Upload className="h-5 w-5 text-primary" />
                             <h4>Original Upload</h4>
                         </div>
-                        <Image src={imagePath} alt={`${selectedDocument.name} Scan`} width={600} height={400} className="rounded-md border aspect-[3/2] object-cover" data-ai-hint="medical license document" />
+                        <Image src={imagePath} alt={`${selectedDocument.filename} Scan`} width={600} height={400} className="rounded-md border aspect-[3/2] object-cover" data-ai-hint="medical license document" />
+                        <p className="text-sm text-slate-600">
+                            <span className="font-medium">File Name:</span> {selectedDocument.filename}
+                        </p>
                     </div>
 
                     <div className="flex-1 space-y-2 p-4 rounded-lg bg-slate-50 border border-slate-200">

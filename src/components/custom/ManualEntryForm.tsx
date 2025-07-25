@@ -22,6 +22,9 @@ const emptyFormData = {
     providerName: "",
     providerLastName:"",
     npi: "",
+    dob: "",
+    email:"",
+    phone:"",
     specialty: "",
     address: "",
     degreeType: "",
@@ -38,6 +41,7 @@ const emptyFormData = {
     "consent-verification": false,
     "training-type":"",
     "dl-upload-id":"",
+    "npi-upload-id":"",
     "degree-upload-id":"",
     "training-upload-id":"",
     "cv-upload-id":"",
@@ -108,7 +112,7 @@ export default function ManualEntryForm() {
       // Update uploadFileData so the filename shows up
       setUploadFileData((prev) => ({
         ...prev,
-        [id]: {
+        [fileType]: {
           fileType: fileType,
           filename: res.data.filename,
           fileId: res.data.fileId,
@@ -140,20 +144,25 @@ export default function ManualEntryForm() {
 
   const handleSubmit = async () => {
     try {
+      await handleSave();
+      
       const response = await axios.post(`${API_BASE_URL}/api/applications`, {
-        providerId: formData.providerId,
+        providerId: '12345678',
         formId: formId,
         name: formData.providerName,
         providerLastName: formData.providerLastName,
         npi: formData.npi,
+        email:  formData.email,
+        phone: formData.phone,
         specialty: formData.specialty,
         address: formData.address,
         source: "Manual Entry",
         status:"New",
         market:"CA",
         assignee:"Barry Allen",
-        progress: 0,
+        progress: 10,
       });
+
       
       handleNext()
 
@@ -208,6 +217,10 @@ export default function ManualEntryForm() {
     fetchFormData();
   }, [formId]);
 
+  useEffect(() => {
+    console.log("uploadFileData updated:", uploadFileData);
+  }, [uploadFileData]);
+
   return (
     <Card className="col-span-1 lg:col-span-3">
       <CardHeader>
@@ -231,10 +244,6 @@ export default function ManualEntryForm() {
         {currentStep === 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="providerId">Provider ID</Label>
-              <Input id="providerId" value={formData.providerId || ''} onChange={handleChange} placeholder="e.g., P12345" />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="providerName">First Name</Label>
               <Input id="providerName" value={formData.providerName || ''} onChange={handleChange} placeholder="e.g., John" />
             </div>
@@ -243,16 +252,38 @@ export default function ManualEntryForm() {
               <Input id="providerLastName" value={formData.providerLastName || ''} onChange={handleChange} placeholder="e.g., Smith" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="npi">NPI</Label>
-              <Input id="npi" value={formData.npi || ''} onChange={handleChange} placeholder="e.g., 1234567890" />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="specialty">Specialty</Label>
               <Input id="specialty" value={formData.specialty || ''} onChange={handleChange} placeholder="e.g., Cardiology" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email ID</Label>
+              <Input id="email" value={formData.email || ''} onChange={handleChange} placeholder="e.g., abc@example.com" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" value={formData.phone || ''} onChange={handleChange} placeholder="e.g., 09121938432 " />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dob">Date of Birth</Label>
+              <Input id="dob" type="date" value={formData.dob || ''} onChange={handleChange} placeholder="Enter date of birth"/>
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="address">Address</Label>
               <Input id="address" value={formData.address || ''} onChange={handleChange} placeholder="e.g., 123 Health St, Medville, CA 90210" />
+            </div>
+            <hr className="space-y-2 md:col-span-2" />
+            <div className="space-y-2">
+              <Label htmlFor="npi">NPI</Label>
+              <Input id="npi" value={formData.npi || ''} onChange={handleChange} placeholder="e.g., 1234567890" />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="npi-upload-id">Upload NPI receipt</Label>
+                <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="npi-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
+                {uploadFileData.npi?.filename && (
+                  <p className="text-sm text-muted-foreground">
+                    Selected: {uploadFileData.npi.filename}
+                  </p>
+                )}
             </div>
           </div>
         )}
@@ -355,11 +386,9 @@ export default function ManualEntryForm() {
                      <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="dl-upload-id">Upload Document</Label>
                         <Button asChild variant="outline"><Label className="cursor-pointer flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File<Input id="dl-upload-id" type="file" onChange={handleFileChange} className="hidden" /></Label></Button>
-                        {Object.values(uploadFileData).find(file => file.fileType === 'dl')?.filename && (
+                        {uploadFileData.dl?.filename && (
                           <p className="text-sm text-muted-foreground">
-                            Selected: {
-                              Object.values(uploadFileData).find(file => file.fileType === 'dl')?.filename
-                            }
+                            Selected: {uploadFileData.dl.filename}
                           </p>
                         )}
                     </div>
