@@ -15,6 +15,8 @@ import { cn } from '@/lib/utils';
 import mockApi, { type DocumentStatus, type VerificationCentre } from '@/lib/mock-data';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
+import { OcrOutput } from '@/components/custom/OcrOutput';
+import { VerificationOutput } from '@/components/custom/VerificationOutput';
 
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -62,53 +64,83 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
   const [formData, setFormData] = useState<any>({});
 
   useEffect(() => {
-    const fetchDocUploadNameData = async (uploadIds:any) => {
-        if (!id) return;
+        const fetchDocUploadNameData = async (uploadIds:any) => {
+            if (!id) return;
 
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/forms/upload-info`, {
+                    params: { 'appId':id, 'formId':'', 'uploadIds':uploadIds.join(',')},
+                });
+            
+                const docData = Object.values(res.data?.files);
+                console.log(docData, 'docData');
+                setDocuments(docData)
+                if (docData.length > 0) {
+                    setSelectedDocument(docData[0]);
+                }
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching upload docs info:", error);
+                toast({ title: "Error", description: "Failed to load upload docs info" });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const fetchFormData = async () => {
+            if (!id) return;
+
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/forms/`, {
+                    params: { 'appId':id, 'formId':'' },
+                });
+                setFormData(res.data);
+
+                const uploadIds = Object.entries(res.data)
+                .filter(([key, _]) => key.endsWith('-upload-id'))
+                .map(([_, value]) => value);
+
+
+                fetchDocUploadNameData(uploadIds);
+            } catch (error) {
+                // console.log(error, 'error fetching form data');
+                const docData = await mockApi.getDocumentsStatus(id);
+                console.log(docData, 'docData');
+                setDocuments(docData);
+                if (docData.length > 0) {
+                    setSelectedDocument(docData[0]);
+                }
+                setLoading(false);
+                // toast({ title: "Error", description: "Failed to load form data." });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFormData();
+    }, [id]);   
+            
+
+    const handleDownload = async (type: String) => {
         try {
-            const res = await axios.get(`${API_BASE_URL}/api/forms/upload-info`, {
-                params: { 'appId':id, 'formId':'', 'uploadIds':uploadIds.join(',')},
-            });
-        
-            const docData = Object.values(res.data?.files);
-            console.log(docData, 'docData');
-            setDocuments(docData)
-            if (docData.length > 0) {
-                setSelectedDocument(docData[0]);
-              }
-              setLoading(false);
+        const response = await fetch(`${API_BASE_URL}/api/documents/download?id=${params.id}&type=${type}`, {
+            method: 'GET',
+        });
+
+        if (!response.ok) throw new Error('Failed to download');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${type.toUpperCase()}_${params.id}.pdf`; // dynamic filename
+        a.click();
+        window.URL.revokeObjectURL(url);
         } catch (error) {
-            console.error("Error fetching upload docs info:", error);
-            toast({ title: "Error", description: "Failed to load upload docs info" });
-        } finally {
-            setLoading(false);
+        console.error("Download failed:", error);
         }
     };
-
-    const fetchFormData = async () => {
-        if (!id) return;
-
-        try {
-            const res = await axios.get(`${API_BASE_URL}/api/forms/`, {
-                params: { 'appId':id, 'formId':'' },
-            });
-            setFormData(res.data);
-
-            const uploadIds = Object.entries(res.data)
-            .filter(([key, _]) => key.endsWith('-upload-id'))
-            .map(([_, value]) => value);
-
-            fetchDocUploadNameData(uploadIds);
-        } catch (error) {
-            toast({ title: "Error", description: "Failed to load form data." });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    fetchFormData();
-}, [id]);
-
 
   useEffect(() => {
     async function loadVerificationCenter() {
@@ -165,7 +197,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                         >
                             <div className="flex items-center gap-3">
                                 <Icon className={`h-6 w-6 ${color}`} />
-                                <span className="text-base font-semibold">{doc.fileType}</span>
+                                <span className="text-base font-semibold">{doc.fileType.toUpperCase()}</span>
                             </div>
                             <div className="w-full mt-2">
                                 <Progress value={doc.progress} />
@@ -180,7 +212,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
 
         <Card>
             <CardHeader>
-                <CardTitle>Verification Progress for: <span className="text-primary">{selectedDocument.fileType}</span></CardTitle>
+                <CardTitle>Verification Progress for: <span className="text-primary">{selectedDocument.fileType.toUpperCase()}</span></CardTitle>
                 <CardDescription>Details from each stage of the verification pipeline.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -190,7 +222,10 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                             <Upload className="h-5 w-5 text-primary" />
                             <h4>Original Upload</h4>
                         </div>
-                        <Image src={imagePath} alt={`${selectedDocument.filename} Scan`} width={600} height={400} className="rounded-md border aspect-[3/2] object-cover" data-ai-hint="medical license document" />
+                        <Image src={imagePath} alt={`${selectedDocument.filename} Scan`} width={600} height={400} 
+                            className="rounded-md border aspect-[3/2] object-cover cursor-pointer" data-ai-hint="medical license document" 
+                            onClick={() => handleDownload(selectedDocument.fileType)} />
+
                         <p className="text-sm text-slate-600">
                             <span className="font-medium">File Name:</span> {selectedDocument.filename}
                         </p>
@@ -201,28 +236,19 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                             <Search className="h-5 w-5 text-primary" />
                             <h4>OCR/LLM Output</h4>
                         </div>
-                        <div className="space-y-2 text-sm bg-muted p-3 rounded-md h-full">
-                            <p><strong>License Type:</strong> {selectedDocument.ocrData?.type || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.type || 'N/A'}%</Badge></p>
-                            <p><strong>License Number:</strong> {selectedDocument.ocrData?.number || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.number || 'N/A'}%</Badge></p>
-                            <p><strong>Issue Date:</strong> {selectedDocument.ocrData?.issueDate || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.issueDate || 'N/A'}%</Badge></p>
-                            <p><strong>Expiry Date:</strong> {selectedDocument.ocrData?.expiryDate || 'N/A'} <Badge variant="outline" className="ml-2">{selectedDocument.ocrData?.confidence.expiryDate || 'N/A'}%</Badge></p>
+                        <div className="max-h-96 overflow-auto pr-2">
+                            <OcrOutput data={selectedDocument.ocrData} type={selectedDocument.fileType} />
                         </div>
+                        {/* <OcrOutput data={selectedDocument.ocrData} type={selectedDocument.fileType}/> */}
                     </div>
 
                     <div className="flex-1 space-y-2 p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <div className="flex items-center gap-2 font-semibold text-lg">
                             <Database className="h-5 w-5 text-primary" />
-                            <h4>API Verification</h4>
+                            <h4>Verification</h4>
                         </div>
-                        <div className="space-y-2 text-sm bg-muted p-3 rounded-md h-full">
-                            <div className="flex items-start gap-2 text-green-600">
-                                <CheckCircle className="h-5 w-5 mt-0.5 shrink-0" />
-                                <span>Verified with {verificationCentre?.type || 'State Board'} API</span>
-                            </div>
-                             <div className="flex items-start gap-2 text-muted-foreground">
-                                <Clock className="h-5 w-5 mt-0.5 shrink-0" />
-                                <span>NPDB Check Pending</span>
-                            </div>
+                        <div className="max-h-96 overflow-auto pr-2">
+                            <VerificationOutput data={selectedDocument.pdfMatch} type={selectedDocument.fileType}/>
                         </div>
                     </div>
 
@@ -231,22 +257,24 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                             <Check className="h-5 w-5 text-primary" />
                             <h4>Primary Source</h4>
                         </div>
-                        {verificationCentre ? (
-                            <div className="space-y-2 text-sm bg-muted p-3 rounded-md h-full">
-                                <p><strong>Organization:</strong> {verificationCentre.name}</p>
-                                <p><strong>Address:</strong> {verificationCentre.address}</p>
-                                <p><strong>Contact:</strong> {verificationCentre.email}</p>
-                                <Separator className="my-2 bg-border" />
-                                <div className="space-y-2">
-                                    <Textarea placeholder="Add a comment or log interaction..." rows={3} />
-                                    <Button size="sm" className="w-full">Save Contact Log</Button>
+                        <div className="max-h-96 overflow-auto pr-2">
+                            {verificationCentre ? (
+                                <div className="space-y-2 text-sm bg-muted p-3 rounded-md h-full">
+                                    <p><strong>Organization:</strong> {verificationCentre.name}</p>
+                                    <p><strong>Address:</strong> {verificationCentre.address}</p>
+                                    <p><strong>Contact:</strong> {verificationCentre.email}</p>
+                                    <Separator className="my-2 bg-border" />
+                                    <div className="space-y-2">
+                                        <Textarea placeholder="Add a comment or log interaction..." rows={3} />
+                                        <Button size="sm" className="w-full">Save Contact Log</Button>
+                                    </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="text-sm bg-muted p-3 rounded-md h-full flex items-center justify-center">
-                                <p>No verification center contact information available for this document type.</p>
-                            </div>
-                        )}
+                            ) : (
+                                <div className="text-sm bg-muted p-3 rounded-md h-full flex items-center justify-center">
+                                    <p>No verification center contact information available for this document type.</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </CardContent>

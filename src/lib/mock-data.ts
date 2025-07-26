@@ -31,7 +31,7 @@ export interface TimelineEvent {
 }
 
 export interface DocumentStatus {
-    name: string;
+    fileType: string;
     status: 'New' | 'Verified' | 'Pending' | 'Flagged';
     progress: number;
     ocrData?: {
@@ -74,6 +74,20 @@ export interface Report {
     type: 'PDF' | 'Excel';
 }
 
+const applications: Application[] = [
+    { id: 'APP-002', providerId: 'P54321', name: 'Dr. Emily White', status: 'In-Progress', progress: 75, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'California', specialty: 'Dermatology', address: '456 Skin Ave, Suite 200, Beverly Hills, CA, 90210', npi: '0987654321' },
+    { id: 'APP-003', providerId: 'P67890', name: 'Dr. Michael Brown', status: 'In-Progress', progress: 50, assignee: 'Charlie Davis', source: 'Email Parsing', market: 'New York', specialty: 'Neurology', address: '789 Brain Blvd, Thinktown, NY, 10001', npi: '1122334455' },
+    { id: 'APP-004', providerId: 'P11223', name: 'Dr. Sarah Miller', status: 'Closed', progress: 100, assignee: 'Alice Johnson', source: 'Availity API', market: 'Texas', specialty: 'Pediatrics', address: '101 Child Way, Kidston, TX, 75001', npi: '6677889900' },
+    { id: 'APP-005', providerId: 'P44556', name: 'Dr. David Wilson', status: 'Needs Further Review', progress: 90, assignee: 'Unassigned', source: 'Manual Entry', market: 'Florida', specialty: 'Orthopedics', address: '202 Bone Ln, Jointsville, FL, 33101', npi: '1231231234' },
+    { id: 'APP-006', providerId: 'P77889', name: 'Dr. Jessica Garcia', status: 'Completed', progress: 100, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'National', specialty: 'Oncology', address: '303 Hope Dr, Cure City, WA, 98101', npi: '4564564567' },
+    { id: 'APP-007', providerId: 'P99999', name: 'Dr. Robert King', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'California', specialty: 'Cardiology', address: '1 Heart Way, Loveland, CA, 90210', npi: '9998887776' },
+    { id: 'APP-008', providerId: 'P88888', name: 'Dr. Linda Martinez', status: 'Pending Review', progress: 10, assignee: 'Unassigned', source: 'Manual Entry', market: 'New York', specialty: 'Neurology', address: '2 Nerve St, Big Apple, NY, 10001', npi: '8887776665' },
+    { id: 'APP-009', providerId: 'P10101', name: 'Dr. Kevin Lee', status: 'In-Progress', progress: 60, assignee: 'Charlie Davis', source: 'Manual Entry', market: 'California', specialty: 'Dermatology', address: '101 Skin Ave, Beverly Hills, CA, 90210', npi: '1010101010' },
+    { id: 'APP-010', providerId: 'P20202', name: 'Dr. Karen Hall', status: 'Pending Review', progress: 20, assignee: 'Unassigned', source: 'Manual Entry', market: 'Texas', specialty: 'Pediatrics', address: '202 Child Way, Kidston, TX, 75001', npi: '2020202020' },
+    { id: 'APP-011', providerId: 'P30303', name: 'Dr. Steven Young', status: 'In-Progress', progress: 80, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'Florida', specialty: 'Orthopedics', address: '303 Bone Ln, Jointsville, FL, 33101', npi: '3030303030' },
+    { id: 'APP-012', providerId: 'P40404', name: 'Dr. James Lee', status: 'Needs Further Review', progress: 95, assignee: 'Alice Johnson', source: 'Email Parsing', market: 'New York', specialty: 'Cardiology', address: '404 Heart Way, Loveland, NY, 10001', npi: '4040404040' },
+];
+
 const aiIssues: Record<string, AiIssue[]> = {
     'APP-002': [
       { field: 'Address', issue: 'ZIP code mismatch with state.', confidence: 0.95, value: '90210', reasoning: 'The ZIP code 90210 belongs to California, which matches the provided state. However, cross-referencing with USPS database suggests a potential discrepancy in the street address format.' },
@@ -96,78 +110,128 @@ const timelines: Record<string, TimelineEvent[]> = {
         { by: 'System', comment: 'Application received.', time: '3 days ago', type: 'SYSTEM' },
     ]
 };
-
 const documentsStatus: Record<string, DocumentStatus[]> = {
-    'default': [
-        { 
-            name: "NPI Receipt", 
-            status: "Verified", 
-            progress: 100, 
-            ocrData: {
-                type: "Physician",
-                number: "12345678",
-                issueDate: "2020-01-15",
-                expiryDate: "2025-01-14",
-                confidence: { type: 99, number: 98, issueDate: 95, expiryDate: 96 }
-            }
+  'default': [
+    {
+      fileType: "npi",
+      status: "Verified",
+      progress: 100,
+      ocrData: {
+        npi: "1093382830",
+        npi_confident_score: 1.0,
+        "Enumeration Date": "2021-06-09",
+        Enumeration_Date_confident_score: 1.0,
+        Status: "Active",
+        Status_confident_score: 1.0,
+        "Primary Practice Address":
+          "1277 KELLY JOHNSON BLVD STE 160 COLORADO SPRINGS, CO 80920-3992",
+        Primary_Practice_Address_confident_score: 1.0,
+      },
+      pdfMatch: {
+        match: true,
+        reason:
+          "Both documents have a similar layout with key fields like Name, NPI, Mailing Address, and Primary/Secondary Practice Addresses positioned consistently.",
+        confidance_score: 0.85,
+      },
+    },
+    {
+      fileType: "degree",
+      status: "Pending",
+      progress: 50,
+      ocrData: {
+        type: "MD",
+        type_confident_score: 1.0,
+        issueDate: "2010-05-20",
+        issueDate_confident_score: 1.0,
+        institution: "Stanford University",
+        institution_confident_score: 1.0,
+        confidence: { type: 92, number: 0, issueDate: 88, expiryDate: 0 },
+      },
+    },
+    { fileType: "cv/resume", status: "Pending", progress: 25,
+        pdfMatch: {
+            match: false,
+            reason:"",
+            confidance_score: 0.92,
         },
-        { 
-            name: "Degree Certificate", 
-            status: "Pending", 
-            progress: 50,
-            ocrData: {
-                type: "MD",
-                number: "N/A",
-                issueDate: "2010-05-20",
-                expiryDate: "N/A",
-                confidence: { type: 92, number: 0, issueDate: 88, expiryDate: 0 }
-            }
-        },
-        { name: "CV/Resume", status: "Pending", progress: 25 },
-        { 
-            name: "Driving License", 
-            status: "Flagged", 
-            progress: 75,
-            ocrData: {
-                type: "Class C",
-                number: "D9876543",
-                issueDate: "2021-08-10",
-                expiryDate: "2029-08-10",
-                confidence: { type: 85, number: 70, issueDate: 91, expiryDate: 90 }
-            }
-        },
-        { name: "Passport", status: "Verified", progress: 100 },
-    ]
+    },
+    {
+      fileType: "dl",
+      status: "Flagged",
+      progress: 75,
+      ocrData: {
+        fn: "Tom",
+        fn_confident_score: 1.0,
+        dl: "OL11231L",
+        dl_confident_score: 1.0,
+        ln: "Jerry",
+        ln_confident_score: 1.0,
+        class: "C",
+        class_confident_score: 1.0,
+        dob: "08/20/1989",
+        dob_confident_score: 1.0,
+        sex: "F",
+        sex_confident_score: 1.0,
+        hair: "BLK",
+        hair_confident_score: 1.0,
+        eyes: "BLK",
+        eyes_confident_score: 1.0,
+        hgt: "5-10",
+        hgt_confident_score: 1.0,
+        wgt: "140 lb",
+        wgt_confident_score: 1.0,
+        exp: "08/31/2025",
+        exp_confident_score: 1.0,
+      },
+      pdfMatch: {
+        match: true,
+        reason:
+          "DL fields such as name, date of birth, and class are present and aligned with standard DL layout.",
+        confidance_score: 0.92,
+      },
+    },
+    { fileType: "passport", status: "Verified", progress: 100,
+        ocrData: {
+            fn: "Tom",
+            fn_confident_score: 1.0,
+            dl: "OL11231L",
+            dl_confident_score: 1.0,
+            ln: "Jerry",
+            ln_confident_score: 1.0,
+          },
+     },
+  ],
 };
 
+
 const verificationCentres = {
-  "Medical License": [
+  "ml": [
     { name: "CA Medical Board", state: "CA", address: "2005 Evergreen St, Sacramento, CA 95815", email: "verify@mbc.ca.gov", type: "State Board" },
     { name: "NY State Education Dept", state: "NY", address: "89 Washington Ave, Albany, NY 12234", email: "opverify@nysed.gov", type: "State Dept" },
     { name: "TX Medical Board", state: "TX", address: "1801 Congress Ave, Austin, TX 78701", email: "verifications@tmb.state.tx.us", type: "State Board" },
   ],
-  "Degree Certificate": [
+  "degree": [
       { name: "ECFMG (International)", state: "PA", address: "3624 Market St, Philadelphia, PA 19104", email: "verify@ecfmg.org", type: "Non-profit" },
       { name: "FCVS (FSMB)", state: "TX", address: "400 Fuller Wiser Rd, Euless, TX 76039", email: "fcvs@fsmb.org", type: "Non-profit" },
       { name: "Stanford University Registrar", state: "CA", address: "459 Lagunita Drive, Stanford, CA 94305", email: "registrar@stanford.edu", type: "University" },
   ],
-  "NPI Record": [
+  "npi": [
       { name: "NPPES (CMS)", state: "Federal", address: "7500 Security Blvd, Baltimore, MD 21244", email: "npi@cms.hhs.gov", type: "Federal Agency" },
   ],
-  "Passport": [
+  "passport": [
       { name: "National Passport Info Center", state: "Federal", address: "1111 19th St NW, Washington, DC 20036", email: "npic@state.gov", type: "Federal Agency" },
   ],
-  "Malpractice History": [
+  "malpractice-history": [
       { name: "National Practitioner Data Bank", state: "Federal", address: "P.O. Box 10828, Chantilly, VA 20153", email: "help@npdb.hrsa.gov", type: "Federal Agency" },
   ],
-  "Driving License": [
+  "dl": [
     { name: "California DMV", state: "CA", address: "2415 1st Ave, Sacramento, CA 95818", email: "records@dmv.ca.gov", type: "DMV" },
     { name: "New York DMV", state: "NY", address: "6 Empire State Plaza, Albany, NY 12228", email: "verify@dmv.ny.gov", type: "DMV" },
   ],
-  "DEA Certificate": [
+  "dea": [
     { name: "Drug Enforcement Administration", state: "Federal", address: "8701 Morrissette Dr, Springfield, VA 22152", email: "verification@dea.gov", type: "Federal Agency" },
   ],
-  "CV/Resume": [
+  "cv/resume": [
     { name: "General Hospital HR", state: "CA", address: "123 Health St, Medville, CA 90210", email: "hr@generalhospital.com", type: "Employer" },
   ]
 };

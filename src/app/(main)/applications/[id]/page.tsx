@@ -19,7 +19,8 @@ import { smartAutoEmailGeneration } from '@/ai/flows/smart-auto-email-generation
 // import { generateApproveModifyRejectSuggestions } from '@/ai/flows/generate-approve-modify-reject-suggestions';
 // import { summarizeApplicationData } from '@/ai/flows/application-data-summarization';
 import axios from 'axios';
-import dynamic from "next/dynamic";
+import { useToast } from '@/hooks/use-toast';
+
 
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -30,6 +31,7 @@ export default function ApplicationDetailsPage() {
 
   const params = useParams(); // 👈 Unwrap the params properly
   const id = params?.id as string;
+  const { toast } = useToast();
 
   
   const [application, setApplication] = useState<Application | null>(null);
@@ -79,9 +81,14 @@ export default function ApplicationDetailsPage() {
     setIsEmailDialogOpen(true);
   }
 
+  const handleAddToMailList = () => {
+    toast({title: "Email", description :"Add to mail list successful!"});
+    return;
+  }
+
   const handleSendEmail = async () => {
     if (!emailDraft || !application?.email) {
-      alert("Email content or recipient missing.");
+      toast({title: "Email Failed", description :"Email content or recipient missing."});
       return;
     }
   
@@ -99,7 +106,7 @@ export default function ApplicationDetailsPage() {
       });
   
       if (!res.ok) {
-        alert("Email sent successfully!");
+        toast({title: "Email Sent", description :"Email sent and saved successfully!"});
         setIsEmailDialogOpen(false);
       }
 
@@ -123,12 +130,12 @@ export default function ApplicationDetailsPage() {
         console.warn("Email sent, but failed to save to DB:", err.message);
       }
 
-      alert("Email sent and saved successfully!");
+      toast({title: "Email Sent", description :"Email sent and saved successfully!"});
       setIsEmailDialogOpen(false);
 
     } catch (error) {
       console.error(error);
-      alert("An error occurred while sending the email.");
+      toast({title: "Email Failed", description :"An error occurred while sending the email."});
     }
   };
   
@@ -281,11 +288,21 @@ export default function ApplicationDetailsPage() {
                           <p className="text-sm text-muted-foreground">Verify the flagged issues with the provider or primary source.</p>
                        </div>
                        <div className="flex flex-col gap-2">
-                            <Button asChild className="w-full" size="lg">
-                                <Link href={`/credentialing/${params.id}`}>Proceed to Credentialing <ArrowRight className="ml-2 h-4 w-4"/></Link>
-                            </Button>
-                             <Button className="w-full" variant="secondary" onClick={handleGenerateEmail}><Mail className="mr-2 h-4 w-4"/> Contact Provider</Button>
-                       </div>
+                        <Button asChild className="w-full" size="lg">
+                          <Link href={`/credentialing/${params.id}`}>
+                            Proceed to Credentialing <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+
+                        <div className="flex gap-2">
+                          <Button className="w-1/2" variant="secondary" onClick={handleGenerateEmail}>
+                            <Mail className="mr-2 h-4 w-4" /> Contact Provider
+                          </Button>
+                          <Button className="w-1/2" variant="outline" onClick={handleAddToMailList}>
+                            <Mail className="mr-2 h-4 w-4"  /> Add to Mail List
+                          </Button>
+                        </div>
+                      </div>
                   </CardContent>
               </Card>
 
