@@ -63,6 +63,11 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
 
   const [formData, setFormData] = useState<any>({});
 
+  const handleAddToMailList = () => {
+    toast({title: "Email", description :"Add to mail list successful!"});
+    return;
+  }
+
   useEffect(() => {
         const fetchDocUploadNameData = async (uploadIds:any) => {
             if (!id) return;
@@ -248,7 +253,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                             <h4>Verification</h4>
                         </div>
                         <div className="max-h-96 overflow-auto pr-2">
-                            <VerificationOutput data={selectedDocument.pdfMatch} type={selectedDocument.fileType}/>
+                            <VerificationOutput pdfData={selectedDocument.pdfMatch} ocrData={selectedDocument.ocrData} type={selectedDocument.fileType}/>
                         </div>
                     </div>
 
@@ -266,7 +271,7 @@ export default function CredentialingWorkflowPage({ params }: { params: { id: st
                                     <Separator className="my-2 bg-border" />
                                     <div className="space-y-2">
                                         <Textarea placeholder="Add a comment or log interaction..." rows={3} />
-                                        <Button size="sm" className="w-full">Save Contact Log</Button>
+                                        <Button size="sm" className="w-full" onClick={handleAddToMailList}>Add to Mail List</Button>
                                     </div>
                                 </div>
                             ) : (
