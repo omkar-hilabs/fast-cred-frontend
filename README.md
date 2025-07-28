@@ -19,5 +19,5 @@ npm install
 npm run dev
 ```
 
-The app should now be running at http://localhost:9002
+The app should now be running at http://localhost:9002 (make sure the backend is also running - https://github.com/omkar-hilabs/fast-cred-backend/)
 
