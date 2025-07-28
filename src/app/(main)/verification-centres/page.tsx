@@ -63,7 +63,7 @@ export default function VerificationCentresPage() {
                         )}
                     >
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-base font-medium">{docType}</CardTitle>
+                            <CardTitle className="text-base font-medium">{docType.toUpperCase() }</CardTitle>
                             <BookUser className="h-5 w-5 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
@@ -78,7 +78,7 @@ export default function VerificationCentresPage() {
       {selectedDocType && verificationCentres[selectedDocType] && (
         <Card>
             <CardHeader>
-                <CardTitle>Organizations for <span className="text-primary">{selectedDocType}</span></CardTitle>
+                <CardTitle>Organizations for <span className="text-primary">{selectedDocType.toUpperCase()}</span></CardTitle>
                 <CardDescription>Select an organization to view pending providers.</CardDescription>
             </CardHeader>
             <CardContent>
