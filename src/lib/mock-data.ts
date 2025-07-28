@@ -31,8 +31,8 @@ export interface TimelineEvent {
 }
 
 export interface DocumentStatus {
-    name: string;
-    status: 'Verified' | 'Pending' | 'Flagged';
+    fileType: string;
+    status: 'New' | 'Verified' | 'Pending' | 'Flagged';
     progress: number;
     ocrData?: {
         type: string;
@@ -74,9 +74,7 @@ export interface Report {
     type: 'PDF' | 'Excel';
 }
 
-
 const applications: Application[] = [
-    { id: 'APP-001', providerId: 'P12345', name: 'Dr. John Smith', status: 'Completed', progress: 100, assignee: 'Alice Johnson', source: 'Manual Entry', market: 'National', specialty: 'Cardiology', address: '123 Health St, Suite 100, Medville, CA, 90210', npi: '1234567890' },
     { id: 'APP-002', providerId: 'P54321', name: 'Dr. Emily White', status: 'In-Progress', progress: 75, assignee: 'Bob Williams', source: 'CAQH Integration', market: 'California', specialty: 'Dermatology', address: '456 Skin Ave, Suite 200, Beverly Hills, CA, 90210', npi: '0987654321' },
     { id: 'APP-003', providerId: 'P67890', name: 'Dr. Michael Brown', status: 'In-Progress', progress: 50, assignee: 'Charlie Davis', source: 'Email Parsing', market: 'New York', specialty: 'Neurology', address: '789 Brain Blvd, Thinktown, NY, 10001', npi: '1122334455' },
     { id: 'APP-004', providerId: 'P11223', name: 'Dr. Sarah Miller', status: 'Closed', progress: 100, assignee: 'Alice Johnson', source: 'Availity API', market: 'Texas', specialty: 'Pediatrics', address: '101 Child Way, Kidston, TX, 75001', npi: '6677889900' },
@@ -112,78 +110,128 @@ const timelines: Record<string, TimelineEvent[]> = {
         { by: 'System', comment: 'Application received.', time: '3 days ago', type: 'SYSTEM' },
     ]
 };
-
 const documentsStatus: Record<string, DocumentStatus[]> = {
-    'default': [
-        { 
-            name: "Medical License", 
-            status: "Verified", 
-            progress: 100, 
-            ocrData: {
-                type: "Physician",
-                number: "12345678",
-                issueDate: "2020-01-15",
-                expiryDate: "2025-01-14",
-                confidence: { type: 99, number: 98, issueDate: 95, expiryDate: 96 }
-            }
+  'default': [
+    {
+      fileType: "npi",
+      status: "Verified",
+      progress: 100,
+      ocrData: {
+        npi: "1093382830",
+        npi_confident_score: 1.0,
+        "Enumeration Date": "2021-06-09",
+        Enumeration_Date_confident_score: 1.0,
+        Status: "Active",
+        Status_confident_score: 1.0,
+        "Primary Practice Address":
+          "1277 KELLY JOHNSON BLVD STE 160 COLORADO SPRINGS, CO 80920-3992",
+        Primary_Practice_Address_confident_score: 1.0,
+      },
+      pdfMatch: {
+        match: true,
+        reason:
+          "Both documents have a similar layout with key fields like Name, NPI, Mailing Address, and Primary/Secondary Practice Addresses positioned consistently.",
+        confidance_score: 0.85,
+      },
+    },
+    {
+      fileType: "degree",
+      status: "Pending",
+      progress: 50,
+      ocrData: {
+        type: "MD",
+        type_confident_score: 1.0,
+        issueDate: "2010-05-20",
+        issueDate_confident_score: 1.0,
+        institution: "Stanford University",
+        institution_confident_score: 1.0,
+        confidence: { type: 92, number: 0, issueDate: 88, expiryDate: 0 },
+      },
+    },
+    { fileType: "cv/resume", status: "Pending", progress: 25,
+        pdfMatch: {
+            match: false,
+            reason:"",
+            confidance_score: 0.92,
         },
-        { 
-            name: "Degree Certificate", 
-            status: "Pending", 
-            progress: 50,
-            ocrData: {
-                type: "MD",
-                number: "N/A",
-                issueDate: "2010-05-20",
-                expiryDate: "N/A",
-                confidence: { type: 92, number: 0, issueDate: 88, expiryDate: 0 }
-            }
-        },
-        { name: "CV/Resume", status: "Pending", progress: 25 },
-        { 
-            name: "Driving License", 
-            status: "Flagged", 
-            progress: 75,
-            ocrData: {
-                type: "Class C",
-                number: "D9876543",
-                issueDate: "2021-08-10",
-                expiryDate: "2029-08-10",
-                confidence: { type: 85, number: 70, issueDate: 91, expiryDate: 90 }
-            }
-        },
-        { name: "Passport", status: "Verified", progress: 100 },
-    ]
+    },
+    {
+      fileType: "dl",
+      status: "Flagged",
+      progress: 75,
+      ocrData: {
+        fn: "Tom",
+        fn_confident_score: 1.0,
+        dl: "OL11231L",
+        dl_confident_score: 1.0,
+        ln: "Jerry",
+        ln_confident_score: 1.0,
+        class: "C",
+        class_confident_score: 1.0,
+        dob: "08/20/1989",
+        dob_confident_score: 1.0,
+        sex: "F",
+        sex_confident_score: 1.0,
+        hair: "BLK",
+        hair_confident_score: 1.0,
+        eyes: "BLK",
+        eyes_confident_score: 1.0,
+        hgt: "5-10",
+        hgt_confident_score: 1.0,
+        wgt: "140 lb",
+        wgt_confident_score: 1.0,
+        exp: "08/31/2025",
+        exp_confident_score: 1.0,
+      },
+      pdfMatch: {
+        match: true,
+        reason:
+          "DL fields such as name, date of birth, and class are present and aligned with standard DL layout.",
+        confidance_score: 0.92,
+      },
+    },
+    { fileType: "passport", status: "Verified", progress: 100,
+        ocrData: {
+            fn: "Tom",
+            fn_confident_score: 1.0,
+            dl: "OL11231L",
+            dl_confident_score: 1.0,
+            ln: "Jerry",
+            ln_confident_score: 1.0,
+          },
+     },
+  ],
 };
 
+
 const verificationCentres = {
-  "Medical License": [
+  "ml": [
     { name: "CA Medical Board", state: "CA", address: "2005 Evergreen St, Sacramento, CA 95815", email: "verify@mbc.ca.gov", type: "State Board" },
     { name: "NY State Education Dept", state: "NY", address: "89 Washington Ave, Albany, NY 12234", email: "opverify@nysed.gov", type: "State Dept" },
     { name: "TX Medical Board", state: "TX", address: "1801 Congress Ave, Austin, TX 78701", email: "verifications@tmb.state.tx.us", type: "State Board" },
   ],
-  "Degree Certificate": [
+  "degree": [
       { name: "ECFMG (International)", state: "PA", address: "3624 Market St, Philadelphia, PA 19104", email: "verify@ecfmg.org", type: "Non-profit" },
       { name: "FCVS (FSMB)", state: "TX", address: "400 Fuller Wiser Rd, Euless, TX 76039", email: "fcvs@fsmb.org", type: "Non-profit" },
       { name: "Stanford University Registrar", state: "CA", address: "459 Lagunita Drive, Stanford, CA 94305", email: "registrar@stanford.edu", type: "University" },
   ],
-  "NPI Record": [
+  "npi": [
       { name: "NPPES (CMS)", state: "Federal", address: "7500 Security Blvd, Baltimore, MD 21244", email: "npi@cms.hhs.gov", type: "Federal Agency" },
   ],
-  "Passport": [
+  "passport": [
       { name: "National Passport Info Center", state: "Federal", address: "1111 19th St NW, Washington, DC 20036", email: "npic@state.gov", type: "Federal Agency" },
   ],
-  "Malpractice History": [
+  "malpractice-history": [
       { name: "National Practitioner Data Bank", state: "Federal", address: "P.O. Box 10828, Chantilly, VA 20153", email: "help@npdb.hrsa.gov", type: "Federal Agency" },
   ],
-  "Driving License": [
+  "dl": [
     { name: "California DMV", state: "CA", address: "2415 1st Ave, Sacramento, CA 95818", email: "records@dmv.ca.gov", type: "DMV" },
     { name: "New York DMV", state: "NY", address: "6 Empire State Plaza, Albany, NY 12228", email: "verify@dmv.ny.gov", type: "DMV" },
   ],
-  "DEA Certificate": [
+  "dea": [
     { name: "Drug Enforcement Administration", state: "Federal", address: "8701 Morrissette Dr, Springfield, VA 22152", email: "verification@dea.gov", type: "Federal Agency" },
   ],
-  "CV/Resume": [
+  "cv/resume": [
     { name: "General Hospital HR", state: "CA", address: "123 Health St, Medville, CA 90210", email: "hr@generalhospital.com", type: "Employer" },
   ]
 };
@@ -257,7 +305,7 @@ export const barChartData = [
 ];
 
 export const summaryTiles = [
-  { title: 'Providers Awaiting Action', value: '5', icon: Users, items: applications.filter(a => a.status === 'Needs Further Review' || a.status === 'Pending Review').slice(0, 5).map(a => ({ id: a.id, name: a.name, status: a.status, market: a.market })) },
+  { title: 'Providers Awaiting Action', value: '5', icon: Users, items: [] },
   { title: 'Payers Awaiting Action', value: '4', icon: HandPlatter, items: [] },
   { title: 'Verification Centres Awaiting Action', value: '5', icon: Building, items: [] },
   { title: 'Follow-up / Reminder Pending', value: '3', icon: Mail, items: [] },
@@ -265,58 +313,57 @@ export const summaryTiles = [
 
 // Simulate API calls
 const api = {
-    getApplications: (): Application[] => {
-        return applications;
+    getApplications: async (): Promise<Application[]> => {
+        return new Promise(resolve => resolve(applications));
     },
-    getApplicationById: (id: string): Application | undefined => {
-        return applications.find(app => app.id === id);
+    getApplicationById: async (id: string): Promise<Application | undefined> => {
+        return new Promise(resolve => resolve(applications.find(app => app.id === id)));
     },
-    getAiIssues: (appId: string): AiIssue[] => {
-        return aiIssues[appId] || aiIssues['default'];
+    getAiIssues: async (appId: string): Promise<AiIssue[]> => {
+        return new Promise(resolve => resolve(aiIssues[appId] || aiIssues['default']));
     },
-    getTimeline: (appId: string): TimelineEvent[] => {
-        return timelines[appId] || timelines['default'];
+    getTimeline: async (appId: string): Promise<TimelineEvent[]> => {
+        return new Promise(resolve => resolve(timelines[appId] || timelines['default']));
     },
-    getDocumentsStatus: (appId: string): DocumentStatus[] => {
-        return documentsStatus[appId] || documentsStatus['default'];
+    getDocumentsStatus: async (appId: string): Promise<DocumentStatus[]> => {
+        return new Promise(resolve => resolve(documentsStatus[appId] || documentsStatus['default']));
     },
-    getVerificationCentres: (): Record<string, VerificationCentre[]> => {
-        return verificationCentres;
+    getVerificationCentres: async (): Promise<Record<string, VerificationCentre[]>> => {
+        return new Promise(resolve => resolve(verificationCentres));
     },
-    getVerificationCentreByName: (name: string): VerificationCentre | undefined => {
-        return allVerificationCentresList.find(c => c.name === name);
+    getVerificationCentreByName: async (name: string): Promise<VerificationCentre | undefined> => {
+        return new Promise(resolve => resolve(allVerificationCentresList.find(c => c.name === name)));
     },
-    getVerificationCentreForDoc: (docName: string): VerificationCentre | undefined => {
+    getVerificationCentreForDoc: async (docName: string): Promise<VerificationCentre | undefined> => {
         const centers = (verificationCentres as any)[docName];
-        return centers ? centers[0] : undefined;
+        return new Promise(resolve => resolve(centers ? centers[0] : undefined));
     },
-    getProvidersByOrg: (): Record<string, string[]> => {
-        return providersByOrg;
+    getProvidersByOrg: async (): Promise<Record<string, string[]>> => {
+        return new Promise(resolve => resolve(providersByOrg));
     },
-    getUnverifiedProvidersForOrg: (orgName: string): Application[] => {
+    getUnverifiedProvidersForOrg: async (orgName: string): Promise<Application[]> => {
         const providerNames = providersByOrg[orgName] || [];
-        return applications.filter(app => providerNames.includes(app.name) && app.status !== 'Completed' && app.status !== 'Closed');
+        return new Promise(resolve => resolve(applications.filter(app => providerNames.includes(app.name) && app.status !== 'Completed' && app.status !== 'Closed')));
     },
-    getEmails: (): Email[] => {
-        return emails;
+    getEmails: async (): Promise<Email[]> => {
+        return new Promise(resolve => resolve(emails));
     },
-    getEmailById: (id: number): Email | undefined => {
-        // a little more dynamic to show different selected emails
+    getEmailById: async (id: number): Promise<Email | undefined> => {
         const email = emails.find(e => e.id === id);
         if (email) {
-            return {
+            return new Promise(resolve => resolve({
                 ...selectedEmail,
                 id: email.id,
                 from: email.from,
                 subject: email.subject,
                 date: email.date,
                 unread: email.unread
-            };
+            }));
         }
-        return selectedEmail; 
+        return new Promise(resolve => resolve(selectedEmail)); 
     },
-    getRecentReports: (): Report[] => {
-        return recentReports;
+    getRecentReports: async (): Promise<Report[]> => {
+        return new Promise(resolve => resolve(recentReports));
     }
 };
 

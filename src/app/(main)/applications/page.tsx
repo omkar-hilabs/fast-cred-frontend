@@ -1,4 +1,5 @@
-'use client';
+"use client"
+
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -7,9 +8,14 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, FileUp, ListFilter } from 'lucide-react';
-import mockApi, { type Application } from '@/lib/mock-data';
 import { useEffect, useState } from 'react';
+import ApplicationIntake from '@/components/custom/ApplicationIntake';
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import axios from 'axios';
 
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
         case 'Completed': return 'default';
@@ -21,23 +27,31 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
     }
 }
 
-
-export default function ApplicationReview() {
+export default function ApplicationsPage() {
   const router = useRouter();
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState([]);
+  const [showIntakeModal, setShowIntakeModal] = useState(false);
   
   useEffect(() => {
-    const data = mockApi.getApplications();
-    setApplications(data);
+    async function loadData() {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/applications`);
+        setApplications(response.data);
+      } catch (error) {
+        console.error('Failed to fetch applications:', error);
+      }
+    }
+  
+    loadData();
   }, []);
 
   const handleRowClick = (appId: string) => {
-    router.push(`/applications/review/${appId}`);
+    router.push(`/applications/${appId}`);
   };
 
   return (
     <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
             <Card>
                 <CardHeader className="pb-2">
                     <CardTitle className="text-base font-normal">Total Applications</CardTitle>
@@ -62,7 +76,26 @@ export default function ApplicationReview() {
                     <p className="text-2xl font-bold">{applications.filter(a => a.status === 'Closed').length}</p>
                 </CardContent>
             </Card>
+            {/* Add Button */}
+            
+            <div className="flex items-center justify-center">
+                <Button
+                    onClick={() => setShowIntakeModal(true)}
+                    className="h-10 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+                >
+                    + Add New
+                </Button>
+            </div>
         </div>
+
+        <Dialog open={showIntakeModal} onOpenChange={setShowIntakeModal}>
+            <DialogContent className="max-w-6xl h-[75vh] overflow-y-auto p-10">
+            <VisuallyHidden>
+                <DialogTitle>Hidden but accessible title</DialogTitle>
+            </VisuallyHidden>
+                <ApplicationIntake />
+            </DialogContent>
+        </Dialog>
 
         <Card>
             <CardHeader className="flex flex-row justify-between">

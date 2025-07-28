@@ -39,7 +39,6 @@ export type ApplicationIssueDetectionOutput = z.infer<typeof ApplicationIssueDet
 export async function detectApplicationIssues(input: ApplicationIssueDetectionInput): Promise<ApplicationIssueDetectionOutput> {
   // return applicationIssueDetectionFlow(input);
   console.log('Simulating detectApplicationIssues with input:', input);
-  await new Promise(resolve => setTimeout(resolve, 1500));
   return {
     issues: [
       { field: 'Address', issue: 'ZIP code mismatch with state.', confidenceScore: 0.95 },

@@ -1,11 +1,12 @@
-
 'use client';
+
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import mockApi, { type Application } from '@/lib/mock-data';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const statusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
@@ -18,15 +19,33 @@ const statusVariant = (status: string): "default" | "secondary" | "destructive" 
     }
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function CredentialingPage() {
-  const allApps: Application[] = mockApi.getApplications();
-  const credentialingApps = allApps.filter(app => ['In-Progress', 'Needs Further Review', 'Completed', 'Pending Review'].includes(app.status));
+  const [applications, setApplications] = useState([]);
+  const [credentialingApps, setCredentialingApps] = useState([]);
   
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/applications`);
+        setApplications(response.data);
+
+        const tempCredentialingApps = response.data.filter(app => ['New', 'AI Read Complete', 'AI Read in Progress', 'In-Progress', 'Needs Further Review', 'Completed', 'Pending Review'].includes(app.status));
+        setCredentialingApps(tempCredentialingApps);
+      } catch (error) {
+        console.error('Failed to fetch applications:', error);
+      }
+    }
+  
+    loadData();
+  }, []);
+
   const getStatusCounts = (apps: Application[]) => {
     return apps.reduce((acc, app) => {
         if (app.status === 'Completed') acc.approved++;
         else if (app.status === 'Closed') acc.rejected++; // Assuming Closed means Rejected for this view
-        else if (app.status === 'In-Progress') acc.inProgress++;
+        else if (['New', 'AI Read Complete', 'AI Read in Progress', 'In-Progress'].includes(app.status)) acc.inProgress++;
         else if (app.status === 'Pending Review' || app.status === 'Needs Further Review') acc.pendingReview++;
         return acc;
     }, { total: apps.length, approved: 0, rejected: 0, inProgress: 0, pendingReview: 0 });
@@ -97,7 +116,7 @@ export default function CredentialingPage() {
             </TableHeader>
             <TableBody>
               {credentialingApps.map((app) => (
-                <TableRow key={app.id} className="cursor-pointer" onClick={() => window.location.href=`/credentialing/${app.id}`}>
+                <TableRow key={app.id}>
                   <TableCell>{app.providerId}</TableCell>
                   <TableCell className="font-medium">{app.name}</TableCell>
                   <TableCell>{app.id}</TableCell>

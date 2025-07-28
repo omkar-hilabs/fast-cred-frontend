@@ -40,10 +40,9 @@ export async function smartAutoEmailGeneration(
 ): Promise<SmartAutoEmailGenerationOutput> {
   // return smartAutoEmailGenerationFlow(input);
   console.log('Simulating smartAutoEmailGeneration with input:', input);
-  await new Promise(resolve => setTimeout(resolve, 500));
 
   let draft = `Dear ${input.recipientName},\n\n`;
-  draft += `${input.context}\n\n`;
+  draft += `${input.context}\n Please <a href="{{{applicationFormLink}}}">click here to view your application</a>. \n\n`;
   draft += `Thank you,\nCredentialing Department`;
 
   return {
@@ -70,7 +69,8 @@ const prompt = ai.definePrompt({
   {{/each}}
   {{/if}}
 
-  Please provide a complete email draft that addresses the context and is ready for the specialist to review and send.`,
+  Please provide a complete email draft that addresses the context and is ready for the specialist to review and send. 
+  Make sure the you proivde the placeholder for the link to applicaiton form as {{{applicationFormLink}}}. `,
 });
 
 const smartAutoEmailGenerationFlow = ai.defineFlow(
