@@ -14,12 +14,7 @@ cd fast-cred-frontend
 npm install
 ```
 
-### Create a .env.local and store the following
-```bash
-NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
-```
-
-### starting the application
+### Start the application
 ```bash
 npm run dev
 ```
