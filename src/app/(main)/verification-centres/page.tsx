@@ -18,12 +18,33 @@ export default function VerificationCentresPage() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const centres = await mockApi.getVerificationCentres();
-            const providers = await mockApi.getProvidersByOrg();
-            setVerificationCentres(centres);
+          const centres = await mockApi.getVerificationCentres();
+          const providers = await mockApi.getProvidersByOrg();
+
+          const keyMapping: Record<string, string> = {
+            "ml" : "Medical License",
+            "degree" : "Degree",
+            "npi" : "NPI",
+            "passport" : "Passport",
+            "malpractice-history" : "Malpractice-History",
+            "dl" : "Driving License",
+            "dea" : "DEA",
+            "cv/resume" : "CV/Resume",
+          };
+
+              const updatedCentres = Object.fromEntries(
+                Object.entries(centres).map(([key, value]) => [
+                  keyMapping[key] ?? key, // rename if in mapping, else keep original
+                  value
+                ])
+              );
+
+            console.log('updatedCentres -> ', updatedCentres)
+              
+            setVerificationCentres(updatedCentres);
             setProvidersByOrg(providers);
-            if (centres && Object.keys(centres).length > 0) {
-                setSelectedDocType(Object.keys(centres)[0]);
+            if (updatedCentres && Object.keys(updatedCentres).length > 0) {
+                setSelectedDocType(Object.keys(updatedCentres)[0]);
             }
         };
         fetchData();

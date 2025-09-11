@@ -100,11 +100,10 @@ const aiIssues: Record<string, AiIssue[]> = {
 };
 
 const timelines: Record<string, TimelineEvent[]> = {
-    'APP-002': [
-        { by: 'System', comment: 'Application received via CAQH.', time: '2 days ago', type: 'SYSTEM' },
-        { by: 'Alice J.', comment: 'Initial review started.', time: '1 day ago', type: 'USER' },
-        { by: 'AI Assistant', comment: '3 potential issues detected.', time: '1 day ago', type: 'AI' },
-        { by: 'Bob W.', comment: 'Assigned to self for verification.', time: '4 hours ago', type: 'USER' },
+    'APP-001': [
+        { by: 'System', comment: 'Application received manually.', time: '2 days ago', type: 'SYSTEM' },
+        { by: 'AI Assistant', comment: '2 potential issues detected.', time: '2 day ago', type: 'AI' },
+        { by: 'Barry Allen', comment: 'Assigned to self for verification.', time: '4 hours ago', type: 'USER' },
     ],
     'default': [
         { by: 'System', comment: 'Application received.', time: '3 days ago', type: 'SYSTEM' },
@@ -243,11 +242,11 @@ const providersByOrg: Record<string, string[]> = {
   "CA Medical Board": ["Dr. John Smith", "Dr. Emily White", "Dr. Robert King", "Dr. Kevin Lee"],
   "NY State Education Dept": ["Dr. Michael Brown", "Dr. Linda Martinez", "Dr. James Lee"],
   "TX Medical Board": ["Dr. Sarah Miller", "Dr. Karen Hall"],
-  "California DMV": ["Dr. David Wilson"],
+  "California DMV": ["Dr. Tom Jerry"],
   "Drug Enforcement Administration": ["Dr. Jessica Garcia"],
   "ECFMG (International)": ["Dr. Emily White"],
   "FCVS (FSMB)": ["Dr. John Smith", "Dr. Michael Brown"],
-  "NPPES (CMS)": ["Dr. Robert King", "Dr. Linda Martinez"],
+  "NPPES (CMS)": ["Dr. Tom Jerry", "Dr. Linda Martinez"],
   "National Passport Info Center": ["Dr. Sarah Miller"],
   "National Practitioner Data Bank": ["Dr. David Wilson", "Dr. Jessica Garcia"],
   "New York DMV": ["Dr. Steven Young"]
