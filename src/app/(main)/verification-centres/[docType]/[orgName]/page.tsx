@@ -1,6 +1,6 @@
 
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -18,17 +18,23 @@ export default function VerificationCentreProvidersPage({ params }: { params: { 
     const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
     const [emailBody, setEmailBody] = useState('');
 
-    const decodedDocType = decodeURIComponent(params.docType);
-    const decodedOrgName = decodeURIComponent(params.orgName);
+    const { docType, orgName } = use(params);
+    
+    const decodedDocType = decodeURIComponent(docType);
+    const decodedOrgName = decodeURIComponent(orgName);
 
     useEffect(() => {
         const fetchData = async () => {
-            const orgData = mockApi.getVerificationCentreByName(decodedOrgName);
-            const providerData = mockApi.getUnverifiedProvidersForOrg(decodedOrgName);
-            
+            const orgData = await mockApi.getVerificationCentreByName(decodedOrgName);
+            const providerData =  await mockApi.getUnverifiedProvidersForOrg(decodedOrgName);
+
+            console.log('Fetching data for org:', decodedOrgName, 'and docType:', decodedDocType);
+            console.log('orgData -> ', orgData);
+            console.log('providerData -> ', providerData);
+
             setOrganisation(orgData || null);
             setProviders(providerData);
-            setSelectedProviders(providerData.map(p => p.id)); // Pre-select all
+            setSelectedProviders(providerData.map(p => p.id));
         };
         fetchData();
     }, [decodedOrgName]);

@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Edit, AlertCircle, Mail, FileText, User, Calendar, MessageSquare, ArrowRight, ArrowLeft } from 'lucide-react';
-// import mockApi from '@/lib/mock-data';
+import mockApi from '@/lib/mock-data';
 import type { Application, AiIssue, TimelineEvent } from '@/lib/mock-data';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -57,8 +57,8 @@ export default function ApplicationDetailsPage() {
         const summaryData = await axios.get(`${API_BASE_URL}/api/applications/summary/${params.id}`);
         setSummary(summaryData.data.summary);
         
-        // const timelineData = await mockApi.getTimeline(appData.id);
-        // setTimeline(timelineData);
+        const timelineData = await mockApi.getTimeline(params.id);
+        setTimeline(timelineData);
 
         // const summaryResult = await summarizeApplicationData({ applicationDetails: JSON.stringify(appData), analystComments: JSON.stringify(timelineData) });
         // setSummary(summaryResult.summary);
@@ -234,12 +234,35 @@ export default function ApplicationDetailsPage() {
                               </AlertTitle>
                               <AlertDescription className="mt-2">
                                   <p className="text-sm"><span className="font-semibold">Value:</span> {issue.value}</p>
-                                  <p className="text-sm mt-1 bg-yellow-100/50 p-2 rounded-md"><span className="font-semibold">AI Reasoning:</span> {issue.reasoning}</p>
+                                  <p className="text-sm mt-1 bg-yellow-100/50 p-2 rounded-md text-black"><span className="font-semibold">AI Reasoning:</span> {issue.reasoning}</p>
                                   <div className="flex gap-2 mt-2">
-                                      <Button size="sm" variant="outline" className="h-7 gap-1" onClick={() => handleSuggestion(issue)}><CheckCircle className="h-3.5 w-3.5" /> Approve</Button>
-                                      <Button size="sm" variant="outline" className="h-7 gap-1" onClick={() => handleSuggestion(issue)}><XCircle className="h-3.5 w-3.5" /> Reject</Button>
-                                      <Button size="sm" variant="outline" className="h-7 gap-1" onClick={() => handleSuggestion(issue)}><Edit className="h-3.5 w-3.5" /> Modify</Button>
-                                  </div>
+  <Button
+    size="sm"
+    variant="outline"
+    className="h-7 gap-1 text-green-600 border-green-600 hover:bg-green-50"
+    onClick={() => handleSuggestion(issue)}
+  >
+    <CheckCircle className="h-3.5 w-3.5" /> Approve
+  </Button>
+
+  <Button
+    size="sm"
+    variant="outline"
+    className="h-7 gap-1 text-red-600 border-red-600 hover:bg-red-50"
+    onClick={() => handleSuggestion(issue)}
+  >
+    <XCircle className="h-3.5 w-3.5" /> Reject
+  </Button>
+
+  <Button
+    size="sm"
+    variant="outline"
+    className="h-7 gap-1 text-blue-600 border-blue-600 hover:bg-blue-50"
+    onClick={() => handleSuggestion(issue)}
+  >
+    <Edit className="h-3.5 w-3.5" /> Modify
+  </Button>
+</div>
                               </AlertDescription>
                           </Alert>
                        ))}
